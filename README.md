@@ -66,7 +66,7 @@ Prefer a pinned version, a different port, or to run as another user? The instal
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/vivek-502/ytrium-web/master/packaging/install.sh \
-  | sudo YTRIUM_WEB_VERSION=v1.0.3 YTRIUM_WEB_PORT=9000 bash
+  | sudo YTRIUM_WEB_VERSION=v1.0.4 YTRIUM_WEB_PORT=9000 bash
 ```
 
 The service runs as your user (not root) and stores its database under
@@ -159,6 +159,7 @@ salted scrypt hashes; session tokens are stored only as SHA-256 hashes. See
 | `YTDLP_TIMEOUT_MS`   | `30000`   | Hard timeout per invocation                             |
 | `YTDLP_SEARCH_LIMIT` | `20`      | Results per search (capped at 50)                       |
 | `YTDLP_EXTRA_ARGS`   | *(empty)* | Extra CLI args, comma separated (e.g. a proxy)          |
+| `YTDLP_FORCE_IPV4`   | `true`    | Keep yt-dlp on IPv4. Home networks often have a broken IPv6 route, which makes yt-dlp hang until the request times out; set `false` only on an IPv6-only host |
 
 ### Streaming
 
@@ -385,6 +386,7 @@ retryable error state rather than a broken control.
 | Symptom | Fix |
 | ------- | --- |
 | Searches fail with a provider error | Check `yt-dlp --version` and update it: `yt-dlp -U` |
+| Search and playback time out after ~30s | Almost always a broken IPv6 route: yt-dlp tries IPv6 first and hangs. The server forces IPv4 by default; make sure `YTDLP_FORCE_IPV4` isn't set to `false`. Verify with `curl -6 -sI https://www.youtube.com/` (a hang means IPv6 is unusable) |
 | `EADDRINUSE` | Another process holds 8787/5173 — change `PORT` or stop it |
 | Audio won't start | Browsers require a user gesture before playback; press play once |
 | Empty charts | Set `ENABLE_CHARTS_PROVIDER=false` for the yt-dlp derived fallback |

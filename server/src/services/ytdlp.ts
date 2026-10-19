@@ -26,7 +26,14 @@ export interface YtDlpResult {
 export function runYtDlp(args: string[], timeoutMs = config.ytdlp.timeoutMs): Promise<YtDlpResult> {
   return new Promise((resolve, reject) => {
     const started = Date.now();
-    const child = spawn(config.ytdlp.path, [...config.ytdlp.extraArgs, ...args], {
+    // A broken IPv6 route makes yt-dlp hang on the first connection attempt
+    // until the timeout fires. --force-ipv4 keeps it on the working stack.
+    const argv = [
+      ...(config.ytdlp.forceIpv4 ? ['--force-ipv4'] : []),
+      ...config.ytdlp.extraArgs,
+      ...args,
+    ];
+    const child = spawn(config.ytdlp.path, argv, {
       shell: false,
       stdio: ['ignore', 'pipe', 'pipe'],
       windowsHide: true,

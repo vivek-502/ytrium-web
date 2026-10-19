@@ -621,6 +621,20 @@ textarea.input {
   right: 8px;
 }
 
+/* On phones the field fills the bar (the header spacer and the duplicate
+   Settings button are hidden in layout.css). 16px stops iOS Safari from
+   zooming the page when the field gets focus. Lives here, after the base
+   .search-field rules, so it wins the cascade. */
+@media (max-width: 767px) {
+  .search-field {
+    max-width: none;
+  }
+
+  .search-field input {
+    font-size: 16px;
+  }
+}
+
 /* ------------------------------- Chips ---------------------------------- */
 
 .chip-row {

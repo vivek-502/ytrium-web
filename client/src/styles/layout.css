@@ -413,6 +413,15 @@
     padding: 0 14px;
     gap: 10px;
   }
+
+  /* Let the search field own all the free space instead of splitting it with
+     the spacer, and drop the header Settings button - it is in the bottom nav
+     on mobile, so the field gets the full width of the bar. The field's own
+     width/size rules live in components.css (which loads after this file). */
+  .topbar .spacer,
+  .topbar .topbar__settings-btn {
+    display: none;
+  }
   .page {
     padding: 6px 14px calc(var(--player-h) + var(--bottomnav-h) + 30px);
   }

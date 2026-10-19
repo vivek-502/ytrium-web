@@ -191,7 +191,7 @@ export const TopBar: React.FC<{ scrolled: boolean }> = ({ scrolled }) => {
       >
         <Icon name={theme === "dark" ? "sun" : "moon"} size={18} />
       </button>
-      <NavLink to="/settings" className={({ isActive }) => cx("icon-btn", isActive && "icon-btn--active")} aria-label="Settings" title="Settings">
+      <NavLink to="/settings" className={({ isActive }) => cx("icon-btn", "topbar__settings-btn", isActive && "icon-btn--active")} aria-label="Settings" title="Settings">
         <Icon name="settings" size={18} />
       </NavLink>
     </header>

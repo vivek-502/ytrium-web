@@ -107,6 +107,11 @@ export const config = {
     timeoutMs: num('YTDLP_TIMEOUT_MS', 30_000),
     searchLimit: Math.min(num('YTDLP_SEARCH_LIMIT', 20), 50),
     extraArgs: list('YTDLP_EXTRA_ARGS', []),
+    // Home networks often have a broken or half-configured IPv6 route. yt-dlp
+    // tries IPv6 first and then hangs until the request times out, which makes
+    // search and playback fail even though IPv4 works fine. Forcing IPv4 is a
+    // safe default; set YTDLP_FORCE_IPV4=0 on an IPv6-only host.
+    forceIpv4: bool('YTDLP_FORCE_IPV4', true),
   },
 
   stream: {
