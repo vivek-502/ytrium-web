@@ -6,7 +6,7 @@ import { ui } from "../stores/uiStore";
 import { confirmDialog } from "../components/common/Overlay";
 import { TrackList } from "../components/tracks/TrackList";
 import { context } from "../components/tracks/trackMenu";
-import { Button, EmptyState, IconButton, RowSkeleton } from "../components/common/UI";
+import { Button, EmptyState, IconButton, RowSkeleton, cx } from "../components/common/UI";
 import Icon from "../components/common/Icon";
 import { formatDurationSeconds, formatRelativeTime, pluralize } from "../lib/format";
 
@@ -135,25 +135,27 @@ const Playlist: React.FC = () => {
 
   return (
     <div className="page">
-      <header className="page-header">
+      <header className={cx("page-header", !hasCover && "page-header--icon")}>
         <div
-          className="page-header__art"
-          style={{
-            display: "grid",
-            placeItems: "center",
-            background: hasCover
-              ? undefined
-              : "linear-gradient(140deg, var(--accent) 0%, var(--accent-strong) 100%)",
-            color: "var(--accent-contrast)",
-            backgroundImage: hasCover ? `url(${playlist.image!})` : undefined,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
+          className={cx("page-header__art", !hasCover && "page-header__art--icon")}
+          style={
+            hasCover
+              ? {
+                  backgroundImage: `url(${playlist.image!})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }
+              : { display: "grid", placeItems: "center" }
+          }
           aria-hidden={!hasCover}
           role={hasCover ? "img" : undefined}
           aria-label={hasCover ? `${playlist.name} cover` : undefined}
         >
-          {!hasCover && <Icon name="list" size={64} />}
+          {!hasCover && (
+            <span className="empty-state__icon" style={{ margin: 0, color: "var(--accent)" }}>
+              <Icon name="list" size={56} />
+            </span>
+          )}
         </div>
         <div style={{ minWidth: 0 }}>
           <div className="page-header__kind">Playlist</div>

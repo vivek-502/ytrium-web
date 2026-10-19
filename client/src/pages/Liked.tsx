@@ -23,18 +23,11 @@ const Liked: React.FC = () => {
 
   return (
     <div className="page">
-      <header className="page-header">
-        <div
-          className="page-header__art"
-          style={{
-            display: "grid",
-            placeItems: "center",
-            background: "linear-gradient(140deg, var(--accent) 0%, var(--accent-strong) 100%)",
-            color: "var(--accent-contrast)",
-          }}
-          aria-hidden
-        >
-          <Icon name="heart-filled" size={64} />
+      <header className="page-header page-header--icon">
+        <div className="page-header__art page-header__art--icon" style={{ display: "grid", placeItems: "center" }} aria-hidden>
+          <span className="empty-state__icon" style={{ margin: 0, color: "var(--accent)" }}>
+            <Icon name="heart-filled" size={56} />
+          </span>
         </div>
         <div style={{ minWidth: 0 }}>
           <div className="page-header__kind">Playlist</div>

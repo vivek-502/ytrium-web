@@ -39,12 +39,22 @@ const QueueRow: React.FC<{
         e.preventDefault();
         onDrop(index);
       }}
-      onDoubleClick={() => player.jumpTo(index)}
+      onClick={(e) => {
+        if (e.target instanceof HTMLElement && e.target.closest("button, a")) return;
+        player.jumpTo(index);
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          player.jumpTo(index);
+        }
+      }}
       onContextMenu={(e) => {
         e.preventDefault();
         openTrackMenu(e, track, {});
       }}
       role="listitem"
+      tabIndex={0}
       aria-label={`${track.title} by ${track.artist}`}
     >
       <Artwork src={track.thumbnail} alt="" className="queue-row__art" />

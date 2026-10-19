@@ -90,7 +90,6 @@ export const Skeleton: React.FC<{
       width: w,
       height: art ? undefined : h,
       borderRadius: r,
-      display: "block",
     }}
   />
 );
@@ -105,7 +104,7 @@ export const CardSkeleton: React.FC = () => (
 
 export const RowSkeleton: React.FC = () => (
   <div className="track-row" aria-hidden>
-    <Skeleton w={18} h={13} />
+    <Skeleton w={18} h={13} className="track-row__index" />
     <div className="track-row__main">
       <Skeleton w={40} h={40} r={6} />
       <div style={{ flex: 1 }}>
@@ -114,10 +113,10 @@ export const RowSkeleton: React.FC = () => (
         <Skeleton w="40%" />
       </div>
     </div>
-    <Skeleton w="60%" />
-    <Skeleton w="50%" />
-    <Skeleton w="34px" />
-    <span />
+    <Skeleton w="60%" className="track-row__album" />
+    <Skeleton w="50%" className="track-row__date" />
+    <Skeleton w="34px" className="track-row__duration" />
+    <span className="track-row__actions" />
   </div>
 );
 

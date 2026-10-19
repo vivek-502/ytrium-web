@@ -95,7 +95,19 @@ export const TrackRow: React.FC<TrackRowProps> = ({
         e.preventDefault();
         onDropRow?.(index);
       }}
-      onDoubleClick={play}
+      onClick={(e) => {
+        // Only a direct click on the row plays; child controls stop propagation.
+        if (e.target instanceof HTMLElement && e.target.closest("button, a")) return;
+        play();
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          play();
+        }
+      }}
+      role="button"
+      tabIndex={0}
       onContextMenu={(e) => {
         e.preventDefault();
         openTrackMenu(e, track, { playlistId, historyEntryId });
@@ -178,7 +190,7 @@ export const TrackRow: React.FC<TrackRowProps> = ({
         {onRemove && (
           <button
             type="button"
-            className="icon-btn"
+            className="icon-btn track-row__remove"
             aria-label={`Remove ${track.title} from this list`}
             onClick={(e) => {
               e.stopPropagation();

@@ -66,7 +66,7 @@ Prefer a pinned version, a different port, or to run as another user? The instal
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/vivek-502/ytrium-web/master/packaging/install.sh \
-  | sudo YTRIUM_WEB_VERSION=v1.0.5 YTRIUM_WEB_PORT=9000 bash
+  | sudo YTRIUM_WEB_VERSION=v1.0.6 YTRIUM_WEB_PORT=9000 bash
 ```
 
 The service runs as your user (not root) and stores its database under

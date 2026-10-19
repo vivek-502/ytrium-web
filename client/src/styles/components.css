@@ -310,7 +310,7 @@
 
 .track-head {
   display: grid;
-  grid-template-columns: 40px minmax(180px, 4fr) minmax(120px, 2fr) minmax(80px, 1.4fr) 68px 44px;
+  grid-template-columns: 40px minmax(0, 4fr) minmax(0, 2fr) minmax(0, 1.4fr) 68px 98px;
   gap: 14px;
   align-items: center;
   padding: 6px 14px;
@@ -329,19 +329,28 @@
 
 .track-row {
   display: grid;
-  grid-template-columns: 40px minmax(180px, 4fr) minmax(120px, 2fr) minmax(80px, 1.4fr) 68px 44px;
+  grid-template-columns: 40px minmax(0, 4fr) minmax(0, 2fr) minmax(0, 1.4fr) 68px 98px;
   gap: 14px;
   align-items: center;
   padding: 7px 14px;
   border-radius: var(--r-sm);
   transition: background var(--dur-fast) var(--ease);
-  cursor: default;
   min-width: 0;
 }
 
 .track-row:hover,
-.track-row:focus-within {
+.track-row:focus-within,
+.track-row:focus-visible {
   background: var(--bg-hover);
+}
+
+.track-row:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.track-row {
+  cursor: pointer;
 }
 
 .track-row.is-current {
@@ -435,9 +444,10 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 2px;
+  gap: 4px;
   opacity: 0;
   transition: opacity var(--dur-fast) var(--ease);
+  min-width: 0;
 }
 
 .track-row:hover .track-row__actions,
@@ -449,6 +459,7 @@
 .track-row__actions .icon-btn {
   width: 30px;
   height: 30px;
+  flex-shrink: 0;
 }
 
 .track-row__like.is-liked {
@@ -509,6 +520,72 @@
 
 .drag-handle:active {
   cursor: grabbing;
+}
+
+/* Touch devices have no hover, so the ⋯ menu (and the like button on a
+   keyboard-less tablet) would never become visible. */
+@media (hover: none) {
+  .track-row__actions {
+    opacity: 1;
+  }
+}
+
+/* Phones: the six-column table needs ~700px, so on a 320-430px screen the
+   album, date and action columns were pushed past the clipped edge and the
+   duration and ⋯ button were never reachable. Collapse to song + duration +
+   options - album, date, like and remove all live in the ⋯ menu. The header
+   row goes with them.
+   The row must stay exactly 54px tall: TrackList virtualizes with a hardcoded
+   ROW_HEIGHT of 54, so a taller row would drift out of its windowed slot. The
+   ⋯ button therefore grows its hit area with negative margins instead of
+   pushing the row taller (7px padding + 40px artwork keeps 54). */
+@media (max-width: 767px) {
+  .track-head {
+    display: none;
+  }
+  .track-row {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: 10px;
+    padding: 7px 4px;
+  }
+  .track-row__index,
+  .track-row__album,
+  .track-row__date,
+  .track-row__like,
+  .track-row__remove {
+    display: none;
+  }
+  .track-row__actions {
+    opacity: 1;
+    gap: 2px;
+  }
+  /* 34px touch target, 30px of layout box: no effect on the 54px row. */
+  .track-row__actions .icon-btn {
+    width: 34px;
+    height: 34px;
+    margin: -2px 0;
+  }
+  .track-row__duration {
+    font-size: 12.5px;
+    padding-right: 2px;
+  }
+  .track-row__main {
+    gap: 10px;
+  }
+  /* The two-line title/artist stacked to 44px, which pushed the row to 58px
+     and broke the virtualizer's 54px grid. Cap the text block instead. */
+  .track-row__meta {
+    line-height: 1.25;
+  }
+  .track-row__title {
+    font-size: 14px;
+    line-height: 1.25;
+  }
+  .track-row__artist {
+    font-size: 12.5px;
+    line-height: 1.25;
+    display: block;
+  }
 }
 
 /* ------------------------------ Inputs ---------------------------------- */
@@ -923,6 +1000,7 @@ textarea.input {
 /* ----------------------------- Skeletons -------------------------------- */
 
 .skeleton {
+  display: block;
   border-radius: var(--r-sm);
   background: linear-gradient(
     90deg,
@@ -1093,34 +1171,65 @@ textarea.input {
    the width: the title wraps into a few characters per line and the Clear
    history button overflows and gets clipped. */
 @media (max-width: 767px) {
+  .page-header {
+    gap: 14px;
+    padding: 16px 0 18px;
+  }
   .page-header--icon {
     align-items: center;
-    gap: 15px;
-    padding: 14px 0 18px;
+    gap: 13px;
+    padding: 12px 0 16px;
+  }
+  .page-header__art {
+    width: 96px;
+    height: 96px;
   }
   .page-header--icon .page-header__art--icon {
-    width: 74px;
-    height: 74px;
+    width: 72px;
+    height: 72px;
     border-radius: var(--r-md);
     background: var(--bg-3);
     box-shadow: none;
     flex: 0 0 auto;
+    /* Sit the tile against the top of the header block rather than centred
+       low in it, so it reads level with the kind/title like the clock tile. */
+    align-self: flex-start;
+    margin-top: -2px;
   }
+  /* All three icon headers (History clock, Playlist, Liked) share the same
+     inner ring, so the glyph sits identically in each tile. */
   .page-header--icon .page-header__art--icon .empty-state__icon {
-    width: 40px;
-    height: 40px;
+    width: 38px;
+    height: 38px;
     margin-bottom: 0;
   }
   .page-header--icon .page-header__art--icon svg {
-    width: 30px;
-    height: 30px;
+    width: 28px;
+    height: 28px;
+  }
+  .page-header__title {
+    font-size: clamp(24px, 7vw, 32px);
+    margin: 4px 0 6px;
   }
   .page-header--icon .page-header__title {
-    font-size: 26px;
-    margin: 5px 0 7px;
+    font-size: clamp(22px, 6vw, 28px);
+    margin: 3px 0 6px;
   }
-  .page-header--icon .page-header__actions {
-    margin-top: 13px;
+  .page-header__desc {
+    font-size: 13px;
+  }
+  .page-header__meta {
+    font-size: 13px;
+  }
+  .page-header__actions {
+    margin-top: 12px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .page-header__actions .btn {
+    height: 34px;
+    padding: 0 14px;
+    font-size: 13px;
   }
 }
 
