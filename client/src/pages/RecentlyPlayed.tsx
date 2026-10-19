@@ -58,8 +58,8 @@ const RecentlyPlayed: React.FC = () => {
 
   return (
     <div className="page">
-      <header className="page-header">
-        <div className="page-header__art" style={{ display: "grid", placeItems: "center" }} aria-hidden>
+      <header className="page-header page-header--icon">
+        <div className="page-header__art page-header__art--icon" style={{ display: "grid", placeItems: "center" }} aria-hidden>
           <span className="empty-state__icon" style={{ margin: 0 }}>
             <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
               <circle cx="12" cy="12" r="9" />

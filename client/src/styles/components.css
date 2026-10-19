@@ -1088,6 +1088,42 @@ textarea.input {
   margin-top: 20px;
 }
 
+/* Icon headers (Recently played) use a decorative tile instead of cover art.
+   At the desktop size it is the right weight, but on a phone it eats most of
+   the width: the title wraps into a few characters per line and the Clear
+   history button overflows and gets clipped. */
+@media (max-width: 767px) {
+  .page-header--icon {
+    align-items: center;
+    gap: 15px;
+    padding: 14px 0 18px;
+  }
+  .page-header--icon .page-header__art--icon {
+    width: 74px;
+    height: 74px;
+    border-radius: var(--r-md);
+    background: var(--bg-3);
+    box-shadow: none;
+    flex: 0 0 auto;
+  }
+  .page-header--icon .page-header__art--icon .empty-state__icon {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 0;
+  }
+  .page-header--icon .page-header__art--icon svg {
+    width: 30px;
+    height: 30px;
+  }
+  .page-header--icon .page-header__title {
+    font-size: 26px;
+    margin: 5px 0 7px;
+  }
+  .page-header--icon .page-header__actions {
+    margin-top: 13px;
+  }
+}
+
 /* Hero gradients per entity type */
 .hero {
   position: relative;

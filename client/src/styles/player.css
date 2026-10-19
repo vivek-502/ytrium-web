@@ -598,6 +598,32 @@
     width: 62px;
     height: 62px;
   }
+  /* The details column centres its children, so the progress block would
+     otherwise shrink to the width of the two time labels - a ~50px stub in the
+     middle of the screen. Stretch it, then make the bar readable on touch:
+     thumb-sized hit area, thicker track and an always-visible handle (there is
+     no hover). overflow is lifted so the round handle is not clipped. */
+  .full-player__progress {
+    width: 100%;
+    gap: 9px;
+  }
+  .full-player__progress .slider {
+    height: 30px;
+  }
+  .full-player__progress .slider__track {
+    height: 6px;
+    overflow: visible;
+  }
+  .full-player__progress .slider__thumb {
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    margin-top: -8px;
+    transform: translateX(-50%) scale(1);
+  }
+  .full-player__times {
+    font-size: 13px;
+  }
   .full-player__lyrics {
     min-height: 208px;
     height: auto;
