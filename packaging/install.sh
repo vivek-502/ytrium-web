@@ -5,6 +5,11 @@
 #
 #   curl -fsSL https://raw.githubusercontent.com/vivek-502/ytrium-web/master/packaging/install.sh | sudo bash
 #
+# Without sudo, fetch it and run it with pkexec:
+#
+#   curl -fsSL https://raw.githubusercontent.com/vivek-502/ytrium-web/master/packaging/install.sh -o /tmp/ytrium-web-install.sh
+#   pkexec bash /tmp/ytrium-web-install.sh
+#
 # Uninstall (keeps your data in ~/.local/share/ytrium-web):
 #
 #   curl -fsSL https://raw.githubusercontent.com/vivek-502/ytrium-web/master/packaging/install.sh | sudo bash -s -- --uninstall
@@ -50,12 +55,29 @@ LEGACY_ICON_PATH="/usr/share/pixmaps/yttrium.png"
 info() { printf '  %s\n' "$*"; }
 step() { printf '\n==> %s\n' "$*"; }
 die()  { printf 'error: %s\n' "$*" >&2; exit 1; }
+
+# Who should own the service and its data? Prefer an explicit override, then the
+# sudo caller, then the pkexec caller (PKEXEC_UID is the uid that invoked
+# pkexec), then the effective login name. Prints an empty string if none work.
+resolve_run_user() {
+  if [ -n "${YTRIUM_WEB_USER:-}" ]; then printf '%s' "$YTRIUM_WEB_USER"; return; fi
+  if [ -n "${SUDO_USER:-}" ]; then printf '%s' "$SUDO_USER"; return; fi
+  if [ -n "${PKEXEC_UID:-}" ]; then id -nu "$PKEXEC_UID" 2>/dev/null && return; fi
+  if [ -n "${LOGNAME:-}" ]; then printf '%s' "$LOGNAME"; return; fi
+  printf ''
+}
+
 usage() {
   cat <<EOF
 Ytrium Web installer for Linux.
 
   curl -fsSL https://raw.githubusercontent.com/${REPO}/${BRANCH}/packaging/install.sh | sudo bash
   curl -fsSL https://raw.githubusercontent.com/${REPO}/${BRANCH}/packaging/install.sh | sudo bash -s -- --uninstall
+
+  No sudo? Fetch it and run it with pkexec instead:
+
+  curl -fsSL https://raw.githubusercontent.com/${REPO}/${BRANCH}/packaging/install.sh -o /tmp/ytrium-web-install.sh
+  pkexec bash /tmp/ytrium-web-install.sh
 
 Options:
   --uninstall   Remove the service, binary, desktop entry and icon
@@ -97,7 +119,7 @@ if [ "$UNINSTALL" -eq 1 ]; then
   command -v update-desktop-database >/dev/null &&
     update-desktop-database /usr/share/applications 2>/dev/null || true
   info "removed binary, desktop entry and icon"
-  REAL_USER="${YTRIUM_WEB_USER:-${SUDO_USER:-}}"
+  REAL_USER="$(resolve_run_user)"
   if [ -n "$REAL_USER" ] && [ "$REAL_USER" != "root" ]; then
     USER_HOME="$(getent passwd "$REAL_USER" | cut -d: -f6)"
     for d in "$USER_HOME/.local/share/ytrium-web" "$USER_HOME/.local/share/yttrium"; do
@@ -109,9 +131,9 @@ if [ "$UNINSTALL" -eq 1 ]; then
 fi
 
 # ------------------------------------------------------------- preflight
-REAL_USER="${YTRIUM_WEB_USER:-${SUDO_USER:-}}"
+REAL_USER="$(resolve_run_user)"
 [ -n "$REAL_USER" ] || die "cannot determine the user to run as.
-Run via sudo from your user account, or set YTRIUM_WEB_USER=<name>."
+Run via sudo/pkexec from your user account, or set YTRIUM_WEB_USER=<name>."
 id "$REAL_USER" >/dev/null || die "user '$REAL_USER' does not exist"
 USER_HOME="$(getent passwd "$REAL_USER" | cut -d: -f6)"
 [ -n "$USER_HOME" ] || die "cannot resolve home for '$REAL_USER'"
