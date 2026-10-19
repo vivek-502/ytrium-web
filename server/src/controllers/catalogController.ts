@@ -7,7 +7,7 @@ import { getRecommendations } from '../providers/registry.js';
 export const health = asyncHandler(async (_req: Request, res: Response) => {
   res.json({
     ok: true,
-    name: 'yttrium-api',
+    name: 'ytrium-web-api',
     version: '1.0.0',
     providers: ['youtube', 'charts'],
     time: new Date().toISOString(),

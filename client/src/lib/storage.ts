@@ -14,9 +14,9 @@ import { idb } from './idb';
 export const LIBRARY_KEY = 'library.v1';
 export const HISTORY_KEY = 'history.v1';
 export const PLAYER_KEY = 'player.v1';
-export const SETTINGS_KEY = 'yttrium.settings.v1';
+export const SETTINGS_KEY = 'ytrium-web.settings.v1';
 /** localStorage settings keys written before the rename (scoped and not). */
-const LEGACY_SETTINGS_BASES = ['sonare.settings.v1'];
+const LEGACY_SETTINGS_BASES = ['yttrium.settings.v1', 'sonare.settings.v1'];
 
 /** Separator between a base data key and the owning user's id. */
 const SCOPE_SEP = '::';

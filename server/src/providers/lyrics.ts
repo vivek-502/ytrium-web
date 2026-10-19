@@ -71,7 +71,7 @@ function normalizeKey(s: string | null | undefined): string {
 
 async function lrclibFetch<T>(pathname: string, params: URLSearchParams): Promise<T> {
   const res = await fetch(`${config.lyrics.base.replace(/\/$/, '')}${pathname}?${params}`, {
-    headers: { accept: 'application/json', 'user-agent': 'yttrium/1.0 (+lyrics)' },
+    headers: { accept: 'application/json', 'user-agent': 'ytrium-web/1.0 (+lyrics)' },
     signal: AbortSignal.timeout(config.lyrics.timeoutMs),
   });
   if (!res.ok) throw errors.upstreamUnavailable(`lyrics provider http ${res.status}`);
@@ -92,7 +92,7 @@ async function lrclibExact(artist: string, title: string): Promise<LrclibEntry |
       track_name: title,
     })}`,
     {
-      headers: { accept: 'application/json', 'user-agent': 'yttrium/1.0 (+lyrics)' },
+      headers: { accept: 'application/json', 'user-agent': 'ytrium-web/1.0 (+lyrics)' },
       signal: AbortSignal.timeout(config.lyrics.timeoutMs),
     },
   );
@@ -267,7 +267,7 @@ function pickBestCaption(files: string[], videoId: string): string {
 const CAPTION_LANGS = ['en', 'en-US', 'en-GB', 'en-orig', 'en-lyrics'];
 
 async function youtubeCaptionLyrics(videoId: string): Promise<LyricsResult | null> {
-  const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'yttrium-lyrics-'));
+  const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'ytrium-web-lyrics-'));
   try {
     const url = `https://www.youtube.com/watch?v=${videoId}`;
     try {

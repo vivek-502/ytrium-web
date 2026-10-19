@@ -7,7 +7,7 @@ const log = createLogger('server');
 const app = createApp();
 
 const server = app.listen(config.port, config.host, () => {
-  log.info('yttrium api listening', {
+  log.info('ytrium-web api listening', {
     url: `http://${config.host}:${config.port}`,
     env: config.nodeEnv,
     streamMode: config.stream.mode,

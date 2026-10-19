@@ -1,9 +1,9 @@
 [Desktop Entry]
 Type=Application
-Name=Ytrium
+Name=Ytrium Web
 Comment=Local-first music streaming
 Exec=xdg-open http://127.0.0.1:8787
-Icon=yttrium
+Icon=ytrium-web
 Terminal=false
 Categories=AudioVideo;Audio;Music;
 Keywords=music;player;streaming;local;

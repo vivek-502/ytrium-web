@@ -4,7 +4,7 @@ import { getSession, revokeSession } from '../services/sessions.js';
 import { findUserById, toPublic, type PublicUser } from '../services/users.js';
 
 /** Name of the httpOnly session cookie. */
-export const SESSION_COOKIE = 'yttrium_session';
+export const SESSION_COOKIE = 'ytrium-web_session';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace

@@ -1,12 +1,12 @@
 {
-  "name": "yttrium",
+  "name": "ytrium-web",
   "version": "1.0.0",
   "private": true,
   "type": "module",
   "description": "Ytrium - a local-first music streaming application (React + Express + yt-dlp)",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/vivek-502/yttrium.git"
+    "url": "git+https://github.com/vivek-502/ytrium-web.git"
   },
   "engines": {
     "node": ">=20"
@@ -34,5 +34,8 @@
     "prettier": "^3.4.2",
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.18.1"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true
   }
 }

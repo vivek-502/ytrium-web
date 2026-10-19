@@ -6,9 +6,9 @@
  * never be used directly from components - go through `storage`.
  */
 
-const DB_NAME = 'yttrium';
+const DB_NAME = 'ytrium-web';
 /** Database written by builds before the rename; copied over once, then left. */
-const LEGACY_DB_NAME = 'sonare';
+const LEGACY_DB_NAMES = ['yttrium', 'sonare'];
 const DB_VERSION = 1;
 export const KV_STORE = 'kv';
 /** Written once so the legacy copy never runs (or overwrites) twice. */
@@ -63,12 +63,24 @@ function dbKeys(db: IDBDatabase): Promise<IDBValidKey[]> {
   });
 }
 
-/** Opens the pre-rename database, or null when it does not exist. */
-function openLegacy(): Promise<IDBDatabase | null> {
+/**
+ * Opens the first pre-rename database that exists, or null when none do.
+ * Tries each legacy name in turn (newest first) so data cascades forward
+ * across multiple renames.
+ */
+async function openLegacy(): Promise<IDBDatabase | null> {
+  for (const name of LEGACY_DB_NAMES) {
+    const db = await openLegacyNamed(name);
+    if (db) return db;
+  }
+  return null;
+}
+
+function openLegacyNamed(name: string): Promise<IDBDatabase | null> {
   return new Promise((resolve) => {
     let req: IDBOpenDBRequest;
     try {
-      req = indexedDB.open(LEGACY_DB_NAME);
+      req = indexedDB.open(name);
     } catch {
       resolve(null);
       return;

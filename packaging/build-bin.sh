@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Builds the Ytrium single-file binary for THIS machine (Node SEA).
 #
-#   packaging/build-bin.sh [output-name]     # default: yttrium-<os>-<arch>
+#   packaging/build-bin.sh [output-name]     # default: ytrium-web-<os>-<arch>
 #
 # Pipeline:
 #   1. vite build of client/            -> client/dist
@@ -25,9 +25,9 @@ case "$(uname -m)" in
   *) echo "error: unsupported architecture $(uname -m)" >&2; exit 1 ;;
 esac
 OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
-ARCH="${YTRIUM_ARCH:-$DEFAULT_ARCH}"
+ARCH="${YTRIUM_WEB_ARCH:-$DEFAULT_ARCH}"
 OUT_DIR="$ROOT/dist-bin"
-BIN="$OUT_DIR/${1:-yttrium-${OS}-${ARCH}}"
+BIN="$OUT_DIR/${1:-ytrium-web-${OS}-${ARCH}}"
 
 ESBUILD="$ROOT/node_modules/.bin/esbuild"
 command -v node >/dev/null || { echo "error: node not found on PATH" >&2; exit 1; }
@@ -67,8 +67,8 @@ rm -f "$BIN"
 node --build-sea="$ROOT/build/sea-config.json"
 
 step "5/5 smoke test"
-SMOKE_PORT="${YTRIUM_SMOKE_PORT:-8791}"
-SMOKE_DIR="$(mktemp -d "${TMPDIR:-/tmp}/yttrium-smoke.XXXXXX")"
+SMOKE_PORT="${YTRIUM_WEB_SMOKE_PORT:-8791}"
+SMOKE_DIR="$(mktemp -d "${TMPDIR:-/tmp}/ytrium-web-smoke.XXXXXX")"
 cleanup() {
   [[ -n "${SMOKE_PID:-}" ]] && kill "$SMOKE_PID" 2>/dev/null || true
   rm -rf "$SMOKE_DIR"

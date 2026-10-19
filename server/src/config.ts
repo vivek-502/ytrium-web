@@ -4,7 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import dotenv from 'dotenv';
 
-const PACKED = process.env.YTTRIUM_PACKED === '1';
+const PACKED = process.env.YTRIUM_WEB_PACKED === '1';
 
 let projectRoot: string;
 if (PACKED) {
@@ -15,22 +15,47 @@ if (PACKED) {
 }
 export { projectRoot };
 
-/** Resolves a platform-appropriate default data directory. */
-function defaultDataDir(): string {
+/** Resolves the default data directory for the current platform. */
+function platformDataDir(name: string): string {
   if (process.env.XDG_DATA_HOME && process.env.XDG_DATA_HOME.trim()) {
-    return path.join(process.env.XDG_DATA_HOME.trim(), 'yttrium');
+    return path.join(process.env.XDG_DATA_HOME.trim(), name);
   }
   switch (process.platform) {
     case 'win32': {
       const appData = process.env.APPDATA || path.join(os.homedir(), 'AppData', 'Roaming');
-      return path.join(appData, 'Ytrium');
+      return path.join(appData, name === 'ytrium-web' ? 'Ytrium Web' : 'Ytrium');
     }
     case 'darwin': {
-      return path.join(os.homedir(), 'Library', 'Application Support', 'Ytrium');
+      return path.join(os.homedir(), 'Library', 'Application Support', name === 'ytrium-web' ? 'Ytrium Web' : 'Ytrium');
     }
     default:
-      return path.join(os.homedir(), '.local', 'share', 'yttrium');
+      return path.join(os.homedir(), '.local', 'share', name);
   }
+}
+
+/**
+ * The app was renamed from "yttrium" to "ytrium-web". Anyone upgrading from a
+ * build that stored data under the old directory would otherwise start empty, so
+ * on first boot we move the old directory forward (accounts, sessions, cache)
+ * instead of abandoning it. One-time and best-effort: any failure leaves the old
+ * data in place and lets the new directory be created fresh.
+ */
+function migrateLegacyDataDir(next: string): string {
+  const prev = platformDataDir('yttrium');
+  if (prev === next) return next;
+  try {
+    if (fs.existsSync(prev) && !fs.existsSync(next)) {
+      fs.mkdirSync(path.dirname(next), { recursive: true });
+      fs.renameSync(prev, next);
+    }
+  } catch {
+    /* best-effort: fall through and use the new (still empty) directory */
+  }
+  return next;
+}
+
+function defaultDataDir(): string {
+  return migrateLegacyDataDir(platformDataDir('ytrium-web'));
 }
 
 // Load `.env` from the project root first, then a server-local `.env` (skipped in packed builds).
@@ -135,8 +160,8 @@ export const config = {
 
 /** Absolute path of the built frontend, when it exists (production serving). */
 export function clientDistDir(): string | null {
-  if (process.env.YTTRIUM_CLIENT_DIST && process.env.YTTRIUM_CLIENT_DIST.trim()) {
-    const dir = process.env.YTTRIUM_CLIENT_DIST.trim();
+  if (process.env.YTRIUM_WEB_CLIENT_DIST && process.env.YTRIUM_WEB_CLIENT_DIST.trim()) {
+    const dir = process.env.YTRIUM_WEB_CLIENT_DIST.trim();
     if (fs.existsSync(path.join(dir, 'index.html'))) return dir;
   }
   const dir = path.join(projectRoot, 'client', 'dist');

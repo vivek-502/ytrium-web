@@ -44,26 +44,26 @@ jobs:
           npm ci --prefix client
 
       # The output name follows the runner's architecture, so each job
-      # produces yttrium-linux-<arch> for its own platform.
+      # produces ytrium-web-linux-<arch> for its own platform.
       - name: Build & smoke-test the binary
         run: npm run build:bin
 
       - name: Checksum
         working-directory: dist-bin
-        run: sha256sum yttrium-linux-${{ matrix.arch }} > yttrium-linux-${{ matrix.arch }}.sha256
+        run: sha256sum ytrium-web-linux-${{ matrix.arch }} > ytrium-web-linux-${{ matrix.arch }}.sha256
 
       - uses: actions/upload-artifact@v4
         with:
-          name: yttrium-linux-${{ matrix.arch }}
+          name: ytrium-web-linux-${{ matrix.arch }}
           path: |
-            dist-bin/yttrium-linux-${{ matrix.arch }}
-            dist-bin/yttrium-linux-${{ matrix.arch }}.sha256
+            dist-bin/ytrium-web-linux-${{ matrix.arch }}
+            dist-bin/ytrium-web-linux-${{ matrix.arch }}.sha256
 
       - name: Attach to the GitHub release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            dist-bin/yttrium-linux-${{ matrix.arch }}
-            dist-bin/yttrium-linux-${{ matrix.arch }}.sha256
+            dist-bin/ytrium-web-linux-${{ matrix.arch }}
+            dist-bin/ytrium-web-linux-${{ matrix.arch }}.sha256
           generate_release_notes: true

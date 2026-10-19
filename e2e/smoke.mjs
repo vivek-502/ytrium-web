@@ -295,7 +295,7 @@ try {
   await shot(page, '12-settings');
 
   /* --------------------------------------------------------------- import */
-  const fixturePath = path.resolve('e2e/fixtures/yttrium-export.json');
+  const fixturePath = path.resolve('e2e/fixtures/ytrium-web-export.json');
   const fileInput = page.locator('input[type="file"][accept*="json"]');
   if ((await fileInput.count().catch(() => 0)) > 0) {
     await fileInput.setInputFiles(fixturePath);

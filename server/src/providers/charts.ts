@@ -22,7 +22,7 @@ const FALLBACK_QUERIES = ['trending songs this week', 'top 50 popular songs', 'n
 
 async function fetchJson<T>(url: string, timeoutMs = 12_000): Promise<T> {
   const res = await fetch(url, {
-    headers: { accept: 'application/json', 'user-agent': 'yttrium/1.0 (+metadata)' },
+    headers: { accept: 'application/json', 'user-agent': 'ytrium-web/1.0 (+metadata)' },
     signal: AbortSignal.timeout(timeoutMs),
   });
   if (!res.ok) throw errors.upstreamUnavailable(`charts http ${res.status}`);

@@ -6,7 +6,7 @@ import type { RequestHandler } from 'express';
  *
  * The SEA build embeds `client/dist` as base64 in the bundle (see
  * packaging/embed-client.mjs); the generated module publishes it on
- * `globalThis.__YTTRIUM_CLIENT_ASSETS__` before this server loads. When that
+ * `globalThis.__YTRIUM_WEB_CLIENT_ASSETS__` before this server loads. When that
  * bag is absent - dev server or `npm start` from a checkout - this returns
  * null and `app.ts` serves from disk exactly as before.
  */
@@ -41,8 +41,8 @@ let entries: Map<string, Entry> | null = null;
 
 function load(): Map<string, Entry> | null {
   if (entries) return entries;
-  const bag = (globalThis as { __YTTRIUM_CLIENT_ASSETS__?: Record<string, string> })
-    .__YTTRIUM_CLIENT_ASSETS__;
+  const bag = (globalThis as { __YTRIUM_WEB_CLIENT_ASSETS__?: Record<string, string> })
+    .__YTRIUM_WEB_CLIENT_ASSETS__;
   if (!bag) return null;
   const map = new Map<string, Entry>();
   for (const [rel, b64] of Object.entries(bag)) {

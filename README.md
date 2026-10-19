@@ -1,7 +1,7 @@
 # Ytrium
 
-[![CI](https://github.com/vivek-502/yttrium/actions/workflows/ci.yml/badge.svg)](https://github.com/vivek-502/yttrium/actions/workflows/ci.yml)
-[![Release](https://img.shields.io/github/v/release/vivek-502/yttrium?display_name=tag&sort=semver)](https://github.com/vivek-502/yttrium/releases)
+[![CI](https://github.com/vivek-502/ytrium-web/actions/workflows/ci.yml/badge.svg)](https://github.com/vivek-502/ytrium-web/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/vivek-502/ytrium-web?display_name=tag&sort=semver)](https://github.com/vivek-502/ytrium-web/releases)
 
 A local-first music streaming app with a Spotify-class experience and its own identity:
 search the web for music, queue it, organise it into playlists, and play it back — all from
@@ -32,7 +32,7 @@ One line installs the binary, a **systemd service** that starts on boot, and a d
 menu entry:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/vivek-502/yttrium/master/packaging/install.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/vivek-502/ytrium-web/master/packaging/install.sh | sudo bash
 ```
 
 Then open <http://127.0.0.1:8787> (or the **Ytrium** entry in your app menu). The default
@@ -42,28 +42,28 @@ accounts in Settings → Users.
 Manage the service:
 
 ```bash
-sudo systemctl status yttrium        # is it up?
-sudo systemctl restart yttrium       # restart after config changes
-journalctl -u yttrium -f             # follow logs
+sudo systemctl status ytrium-web        # is it up?
+sudo systemctl restart ytrium-web       # restart after config changes
+journalctl -u ytrium-web -f             # follow logs
 ```
 
-Remove it (your data in `~/.local/share/yttrium` is kept):
+Remove it (your data in `~/.local/share/ytrium-web` is kept):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/vivek-502/yttrium/master/packaging/install.sh | sudo bash -s -- --uninstall
+curl -fsSL https://raw.githubusercontent.com/vivek-502/ytrium-web/master/packaging/install.sh | sudo bash -s -- --uninstall
 ```
 
 Prefer a pinned version, a different port, or to run as another user? The installer honours
-`YTTRIUM_VERSION` (`latest` or `vX.Y.Z`), `YTTRIUM_PORT`, `YTTRIUM_USER`, `YTTRIUM_DATA_DIR`,
-`YTTRIUM_REPO` and `YTTRIUM_BRANCH`:
+`YTRIUM_WEB_VERSION` (`latest` or `vX.Y.Z`), `YTRIUM_WEB_PORT`, `YTRIUM_WEB_USER`, `YTRIUM_WEB_DATA_DIR`,
+`YTRIUM_WEB_REPO` and `YTRIUM_WEB_BRANCH`:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/vivek-502/yttrium/master/packaging/install.sh \
-  | sudo YTTRIUM_VERSION=v1.0.0 YTTRIUM_PORT=9000 bash
+curl -fsSL https://raw.githubusercontent.com/vivek-502/ytrium-web/master/packaging/install.sh \
+  | sudo YTRIUM_WEB_VERSION=v1.0.0 YTRIUM_WEB_PORT=9000 bash
 ```
 
 The service runs as your user (not root) and stores its database under
-`~/.local/share/yttrium` — set `YTTRIUM_DATA_DIR` to relocate it.
+`~/.local/share/ytrium-web` — set `YTRIUM_WEB_DATA_DIR` to relocate it.
 
 ## Run from source
 
@@ -103,15 +103,15 @@ npm start                 # http://127.0.0.1:8787
 
 ### Build the binary
 
-`npm run build:bin` produces `dist-bin/yttrium-linux-<arch>` — one self-contained
+`npm run build:bin` produces `dist-bin/ytrium-web-linux-<arch>` — one self-contained
 executable (frontend embedded in-memory, Node runtime baked in via Node's single-executable
 app support). The resulting file runs on the machine that built it, so produce each target
 arch on matching hardware; the Release workflow does exactly that for x64 and arm64.
 
 ```bash
 npm install                 # once, for build deps (esbuild)
-npm run build:bin           # -> dist-bin/yttrium-linux-x64
-DATA_DIR=$(mktemp -d) ./dist-bin/yttrium-linux-x64   # smoke it on :8787
+npm run build:bin           # -> dist-bin/ytrium-web-linux-x64
+DATA_DIR=$(mktemp -d) ./dist-bin/ytrium-web-linux-x64   # smoke it on :8787
 ```
 
 At runtime the binary needs no Node install — only `yt-dlp` (and `ffmpeg`) on `PATH`.
@@ -138,7 +138,7 @@ Copy `.env.example` to `.env` (repository root; `server/.env` is also read). Eve
 | --------------------- | ------------------ | ---------------------------------------------------- |
 | `SESSION_TTL_DAYS`    | `30`               | Days a signed-in session stays valid                 |
 | `RATE_LIMIT_AUTH_PER_MIN` | `20`           | Password checks per minute (sign-in, credential change, admin deletes) |
-| `DATA_DIR`            | `server/data` (checkout) · `~/.local/share/yttrium` (binary) | Where `users.json` and `sessions.json` live |
+| `DATA_DIR`            | `server/data` (checkout) · `~/.local/share/ytrium-web` (binary) | Where `users.json` and `sessions.json` live |
 
 On first run Ytrium bootstraps an `admin` / `admin` account. Passwords are stored only as
 salted scrypt hashes; session tokens are stored only as SHA-256 hashes. See
@@ -382,8 +382,8 @@ retryable error state rather than a broken control.
 | Audio won't start | Browsers require a user gesture before playback; press play once |
 | Empty charts | Set `ENABLE_CHARTS_PROVIDER=false` for the yt-dlp derived fallback |
 | Slow first stream | The first request resolves the media URL (~1–3s); it is cached afterwards |
-| A user forgot their password | Admins cannot reset passwords by design. Stop the API (`sudo systemctl stop yttrium`, or your dev process) and remove that user from `users.json` in `DATA_DIR` (`server/data` from source, `~/.local/share/yttrium` from the binary), then recreate the account from Settings → Users (its local data on that browser remains under the old id and is simply not claimed again) |
-| Installed service won't start | `journalctl -u yttrium -n 50` — usually `yt-dlp` isn't on the *service's* `PATH`; install it system-wide or point the unit's `Environment` at it |
+| A user forgot their password | Admins cannot reset passwords by design. Stop the API (`sudo systemctl stop ytrium-web`, or your dev process) and remove that user from `users.json` in `DATA_DIR` (`server/data` from source, `~/.local/share/ytrium-web` from the binary), then recreate the account from Settings → Users (its local data on that browser remains under the old id and is simply not claimed again) |
+| Installed service won't start | `journalctl -u ytrium-web -n 50` — usually `yt-dlp` isn't on the *service's* `PATH`; install it system-wide or point the unit's `Environment` at it |
 
 ## License
 
