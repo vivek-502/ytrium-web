@@ -1,0 +1,233 @@
+/* ================================================================== */
+/*  Ytrium design tokens                                               */
+/*  Original dark music-streaming identity.                            */
+/* ================================================================== */
+
+:root {
+  /* Surfaces - layered charcoal with a faint cool cast */
+  --bg: #0a0c0b;
+  --bg-1: #101312;
+  --bg-2: #171a19;
+  --bg-3: #1e2221;
+  --bg-hover: rgba(255, 255, 255, 0.055);
+  --bg-active: rgba(255, 255, 255, 0.09);
+  --surface-glass: rgba(16, 19, 18, 0.82);
+  --surface-card: #15181700;
+  --card: #171a19;
+  --card-hover: #1d2120;
+
+  /* Borders & separators */
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
+  --divider: rgba(255, 255, 255, 0.06);
+
+  /* Text */
+  --text: #f4f7f5;
+  --text-secondary: #aeb8b3;
+  --text-muted: #7d8783;
+  --text-inverted: #06130d;
+
+  /* Accent - Material-inspired (default: Deep Purple A100 #757de8).
+     Per-theme and per-[data-accent] blocks override from --accent-base. */
+  --accent-base: #757de8;
+  --accent: var(--accent-base);
+  --accent-strong: #6c73d7;
+  --accent-soft: rgba(117, 125, 232, 0.14);
+  --accent-softer: rgba(117, 125, 232, 0.08);
+  --accent-glow: rgba(117, 125, 232, 0.32);
+  --accent-contrast: #0d0f2b;
+  --danger: #ff6b7a;
+  --danger-soft: rgba(255, 107, 122, 0.14);
+  --warning: #ffb454;
+  --success: #4ade9a;
+
+  /* Radii */
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 22px;
+  --r-full: 999px;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 8px 26px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 18px 60px rgba(0, 0, 0, 0.55);
+  --shadow-card: 0 10px 34px rgba(0, 0, 0, 0.38);
+
+  /* Layout */
+  --sidebar-w: 244px;
+  --sidebar-w-compact: 76px;
+  --player-h: 88px;
+  --topbar-h: 64px;
+  --bottomnav-h: 60px;
+  --content-max: 1560px;
+
+  /* Motion */
+  --ease: cubic-bezier(0.32, 0.72, 0.28, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 140ms;
+  --dur: 220ms;
+  --dur-slow: 380ms;
+
+  /* Type */
+  --font: 'Inter', 'SF Pro Display', 'Segoe UI', system-ui, -apple-system,
+    'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'SF Mono', 'JetBrains Mono', ui-monospace, Menlo, monospace;
+
+  --z-sticky: 20;
+  --z-player: 40;
+  --z-drawer: 60;
+  --z-fullplayer: 70;
+  --z-menu: 90;
+  --z-dialog: 100;
+  --z-toast: 110;
+}
+
+/* ------------------------------- Accents -------------------------------- */
+
+/* Material palette, toned for dark surfaces: 300-shades plus the Deep Purple
+   A100 default. Each block sets --accent-base; everything else derives from
+   the :root defaults (or the overrides below). */
+:root[data-accent='purple'] {
+  --accent-base: #757de8;
+  --accent-strong: #6c73d7;
+  --accent-soft: rgba(117, 125, 232, 0.14);
+  --accent-softer: rgba(117, 125, 232, 0.08);
+  --accent-glow: rgba(117, 125, 232, 0.32);
+  --accent-contrast: #0d0f2b;
+}
+:root[data-accent='indigo'] {
+  --accent-base: #7986cb;
+  --accent-strong: #707bba;
+  --accent-soft: rgba(121, 134, 203, 0.14);
+  --accent-softer: rgba(121, 134, 203, 0.08);
+  --accent-glow: rgba(121, 134, 203, 0.3);
+  --accent-contrast: #0e1122;
+}
+:root[data-accent='blue'] {
+  --accent-base: #64b5f6;
+  --accent-strong: #5ea7e2;
+  --accent-soft: rgba(100, 181, 246, 0.14);
+  --accent-softer: rgba(100, 181, 246, 0.08);
+  --accent-glow: rgba(100, 181, 246, 0.3);
+  --accent-contrast: #04121f;
+}
+:root[data-accent='teal'] {
+  --accent-base: #4db6ac;
+  --accent-strong: #48a79e;
+  --accent-soft: rgba(77, 182, 172, 0.14);
+  --accent-softer: rgba(77, 182, 172, 0.08);
+  --accent-glow: rgba(77, 182, 172, 0.3);
+  --accent-contrast: #04211e;
+}
+:root[data-accent='green'] {
+  --accent-base: #81c784;
+  --accent-strong: #78b97b;
+  --accent-soft: rgba(129, 199, 132, 0.14);
+  --accent-softer: rgba(129, 199, 132, 0.08);
+  --accent-glow: rgba(129, 199, 132, 0.3);
+  --accent-contrast: #0a1f0d;
+}
+:root[data-accent='pink'] {
+  --accent-base: #f06292;
+  --accent-strong: #dd5a89;
+  --accent-soft: rgba(240, 98, 146, 0.15);
+  --accent-softer: rgba(240, 98, 146, 0.08);
+  --accent-glow: rgba(240, 98, 146, 0.3);
+  --accent-contrast: #26040f;
+}
+
+/* ------------------------------- Light theme ----------------------------- */
+
+:root[data-theme='light'] {
+  --bg: #f4f6f5;
+  --bg-1: #ffffff;
+  --bg-2: #f0f3f2;
+  --bg-3: #e7ebe9;
+  --bg-hover: rgba(10, 20, 16, 0.05);
+  --bg-active: rgba(10, 20, 16, 0.09);
+  --surface-glass: rgba(255, 255, 255, 0.85);
+  --card: #ffffff;
+  --card-hover: #f3f6f4;
+
+  --border: rgba(8, 20, 15, 0.1);
+  --border-strong: rgba(8, 20, 15, 0.18);
+  --divider: rgba(8, 20, 15, 0.07);
+
+  --text: #0d1311;
+  --text-secondary: #48534e;
+  --text-muted: #6c7873;
+  --text-inverted: #ffffff;
+
+  --shadow-sm: 0 2px 8px rgba(20, 30, 26, 0.08);
+  --shadow-md: 0 8px 26px rgba(20, 30, 26, 0.12);
+  --shadow-lg: 0 18px 60px rgba(20, 30, 26, 0.16);
+  --shadow-card: 0 8px 26px rgba(20, 30, 26, 0.1);
+
+  /* Material tones are light - darken them so white button text stays
+     readable on light surfaces. Declared after the accent blocks above, so
+     these same-specificity overrides win in light mode. */
+  --accent: color-mix(in srgb, var(--accent-base) 74%, black);
+  --accent-strong: color-mix(in srgb, var(--accent-base) 62%, black);
+  --accent-contrast: #ffffff;
+}
+
+/* --------------------------- Compact density ----------------------------- */
+
+:root[data-compact='on'] {
+  --player-h: 76px;
+  --topbar-h: 56px;
+}
+
+/* ---------------------------- Reduced motion ----------------------------- */
+
+:root[data-motion='reduced'] *,
+:root[data-motion='reduced'] *::before,
+:root[data-motion='reduced'] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ------------------------------- Scrollbars ------------------------------ */
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.16) transparent;
+}
+:root[data-theme='light'] * {
+  scrollbar-color: rgba(10, 20, 16, 0.22) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.26);
+  background-clip: content-box;
+}
+:root[data-theme='light'] *::-webkit-scrollbar-thumb {
+  background: rgba(10, 20, 16, 0.24);
+  background-clip: content-box;
+}

@@ -1,0 +1,509 @@
+/* ================================================================== */
+/*  Layout: shell, sidebar, topbar, main, mobile nav                    */
+/* ================================================================== */
+
+.app-shell {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+  height: 100vh;
+  height: 100dvh;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+.app-shell.sidebar-collapsed {
+  grid-template-columns: var(--sidebar-w-compact) minmax(0, 1fr);
+}
+
+/* -------------------------------- Sidebar -------------------------------- */
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: linear-gradient(180deg, var(--bg-1) 0%, var(--bg) 100%);
+  border-right: 1px solid var(--divider);
+  padding: 18px 12px 14px;
+  overflow: hidden;
+  transition: width var(--dur) var(--ease);
+}
+
+.sidebar__brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 4px 10px 20px;
+  min-height: 44px;
+}
+
+.sidebar__logo {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+/* The icon is its own dark tile - frame it with a soft shadow, never a
+   coloured tile behind it. drop-shadow follows the image's transparent
+   corners, so the rounding stays circular-ish instead of square. */
+.sidebar__logo img {
+  border-radius: 9px;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.45));
+}
+
+.sidebar__name {
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.sidebar__name span {
+  color: var(--accent);
+}
+
+.sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 14.5px;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+  position: relative;
+  white-space: nowrap;
+}
+
+.nav-item:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+}
+
+.nav-item.active {
+  background: var(--bg-active);
+  color: var(--text);
+}
+
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  background: var(--accent);
+  border-radius: 0 4px 4px 0;
+}
+
+.nav-item__icon {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.nav-item.active .nav-item__icon {
+  color: var(--accent);
+}
+
+.sidebar__section {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--divider);
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+.sidebar__label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 4px 12px 10px;
+}
+
+.sidebar__playlist-scroll {
+  overflow-y: auto;
+  padding-right: 2px;
+  min-height: 0;
+}
+
+.sidebar__playlist {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+  border-radius: 10px;
+  transition: background var(--dur-fast) var(--ease);
+  color: var(--text-secondary);
+}
+
+.sidebar__playlist:hover {
+  background: var(--bg-hover);
+  color: var(--text);
+}
+
+.sidebar__playlist.active {
+  color: var(--text);
+  background: var(--bg-hover);
+}
+
+.sidebar__playlist-art {
+  width: 34px;
+  height: 34px;
+  border-radius: 7px;
+  object-fit: cover;
+  background: var(--bg-3);
+  flex-shrink: 0;
+}
+
+.sidebar__create {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  margin-top: 8px;
+  border-radius: var(--r-md);
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 14px;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+
+.sidebar__create:hover {
+  background: var(--bg-hover);
+  color: var(--accent);
+}
+
+/* Collapsed sidebar (tablet) */
+.app-shell.sidebar-collapsed .sidebar__label,
+.app-shell.sidebar-collapsed .sidebar__section-title,
+.app-shell.sidebar-collapsed .sidebar__playlist-scroll,
+.app-shell.sidebar-collapsed .sidebar__create span,
+.app-shell.sidebar-collapsed .nav-item span,
+.app-shell.sidebar-collapsed .sidebar__name {
+  display: none;
+}
+
+.app-shell.sidebar-collapsed .nav-item,
+.app-shell.sidebar-collapsed .sidebar__create {
+  justify-content: center;
+  padding: 11px;
+}
+
+.app-shell.sidebar-collapsed .sidebar__brand {
+  justify-content: center;
+  padding: 4px 0 20px;
+}
+
+.app-shell.sidebar-collapsed .nav-item.active::before {
+  display: none;
+}
+
+/* -------------------------------- Main ---------------------------------- */
+
+.main-column {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  height: 100vh;
+  height: 100dvh;
+}
+
+.topbar {
+  height: var(--topbar-h);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 22px;
+  background: color-mix(in srgb, var(--bg) 86%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid transparent;
+  z-index: var(--z-sticky);
+  transition: border-color var(--dur) var(--ease);
+}
+
+.topbar.scrolled {
+  border-bottom-color: var(--divider);
+}
+
+.topbar__nav-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+/* Brand mark parked in the header's left corner - the only logo visible
+   once the sidebar collapses or hides on small screens. */
+.topbar__brand {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  border-radius: 8px;
+  transition: transform var(--dur-fast) var(--ease);
+}
+
+.topbar__brand:hover {
+  transform: scale(1.06);
+}
+
+.topbar__brand:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.topbar__brand img {
+  border-radius: 8px;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4));
+}
+
+.main-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  position: relative;
+}
+
+.page {
+  padding: 8px 26px calc(var(--player-h) + 42px);
+  max-width: var(--content-max);
+  margin: 0 auto;
+  animation: fade-up var(--dur-slow) var(--ease-out) both;
+}
+
+.page--flush {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* --------------------------- Section layout ------------------------------ */
+
+.section {
+  margin-bottom: 34px;
+}
+
+/* Tone accents (set by the recommendation engine for special sections). */
+.section--accent .section__title {
+  color: var(--accent);
+}
+
+.section--warm .section__title {
+  color: var(--warning);
+}
+
+.section__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 15px;
+}
+
+.section__title {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.section__subtitle {
+  font-size: 13.5px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.section__link {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+  padding: 5px 10px;
+  border-radius: var(--r-full);
+  transition: color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
+  white-space: nowrap;
+}
+
+.section__link:hover {
+  color: var(--text);
+  background: var(--bg-hover);
+}
+
+/* Horizontal carousel */
+.carousel {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(178px, 1fr);
+  gap: 18px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  padding-bottom: 6px;
+  scrollbar-width: none;
+}
+.carousel::-webkit-scrollbar {
+  display: none;
+}
+.carousel > * {
+  scroll-snap-align: start;
+}
+
+@media (min-width: 1400px) {
+  .carousel {
+    grid-auto-columns: minmax(190px, calc((100% - 90px) / 6));
+  }
+}
+
+/* Responsive card grid */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+  gap: 20px 18px;
+}
+
+.card-grid--tight {
+  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(144px, 1fr));
+}
+
+@media (max-width: 640px) {
+  .card-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 16px 12px;
+  }
+}
+
+/* --------------------------- Mobile bottom nav --------------------------- */
+
+.bottom-nav {
+  display: none;
+}
+
+/* ------------------------------- Responsive ------------------------------ */
+
+@media (max-width: 1099px) {
+  .app-shell {
+    grid-template-columns: var(--sidebar-w-compact) minmax(0, 1fr);
+  }
+  .app-shell .sidebar__label,
+  .app-shell .sidebar__playlist-scroll,
+  .app-shell .sidebar__create span,
+  .app-shell .nav-item span,
+  .app-shell .sidebar__name {
+    display: none;
+  }
+  .app-shell .nav-item,
+  .app-shell .sidebar__create {
+    justify-content: center;
+    padding: 11px;
+  }
+  .app-shell .sidebar__brand {
+    justify-content: center;
+    padding: 4px 0 20px;
+  }
+  .app-shell .nav-item.active::before {
+    display: none;
+  }
+  .page {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
+
+@media (max-width: 767px) {
+  .app-shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .sidebar {
+    display: none;
+  }
+  .topbar {
+    padding: 0 14px;
+    gap: 10px;
+  }
+  .page {
+    padding: 6px 14px calc(var(--player-h) + var(--bottomnav-h) + 30px);
+  }
+  .section__title {
+    font-size: 19px;
+  }
+  .carousel {
+    grid-auto-columns: minmax(150px, 44vw);
+    gap: 13px;
+  }
+
+  .bottom-nav {
+    display: flex;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: calc(var(--bottomnav-h) + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: color-mix(in srgb, var(--bg-1) 94%, transparent);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid var(--divider);
+    z-index: var(--z-player);
+    justify-content: space-around;
+    align-items: stretch;
+  }
+
+  .bottom-nav__item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    color: var(--text-muted);
+    font-size: 10.5px;
+    font-weight: 600;
+    transition: color var(--dur-fast) var(--ease);
+    min-width: 0;
+  }
+
+  .bottom-nav__item.active {
+    color: var(--accent);
+  }
+
+  .bottom-nav__item:active {
+    transform: scale(0.94);
+  }
+}
+
+/* -------------------------- Narrow phones (≤480px) ------------------------ */
+
+@media (max-width: 480px) {
+  .topbar {
+    gap: 8px;
+    padding: 0 12px;
+  }
+
+  /* Back/forward give the brand mark + search room to breathe; the bottom
+     navigation and system back gesture cover navigation here. */
+  .topbar__nav-buttons {
+    display: none;
+  }
+
+  .topbar__brand img {
+    width: 24px;
+    height: 24px;
+  }
+}

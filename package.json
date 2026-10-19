@@ -1,0 +1,38 @@
+{
+  "name": "yttrium",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Ytrium - a local-first music streaming application (React + Express + yt-dlp)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vivek-502/yttrium.git"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "concurrently -n server,client -c green,cyan \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "dev:server": "npm run dev --prefix server",
+    "dev:client": "npm run dev --prefix client",
+    "build": "npm run build --prefix client && npm run build --prefix server",
+    "build:bin": "bash packaging/build-bin.sh",
+    "start": "npm run start --prefix server",
+    "typecheck": "npm run typecheck --prefix server && npm run typecheck --prefix client",
+    "test:e2e": "node e2e/smoke.mjs",
+    "lint": "eslint .",
+    "format": "prettier --write \"**/*.{ts,tsx,css,json,md}\""
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "concurrently": "^9.1.2",
+    "esbuild": "^0.28.2",
+    "eslint": "^9.17.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^15.14.0",
+    "playwright": "^1.63.0",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.1"
+  }
+}

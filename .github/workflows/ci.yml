@@ -1,0 +1,101 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    name: Typecheck, lint, build, binary
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            server/package-lock.json
+            client/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm ci --prefix server
+          npm ci --prefix client
+
+      - name: Type-check
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build client + server
+        run: npm run build
+
+      # Builds the single-file binary and boots it, requiring /api/health to
+      # answer before the script may succeed.
+      - name: Build & smoke-test the binary
+        run: npm run build:bin
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: yttrium-linux-x64
+          path: dist-bin/yttrium-linux-x64
+          retention-days: 7
+
+  e2e:
+    name: Browser E2E (network)
+    # Live yt-dlp search/stream against YouTube is rate-limited and flaky on
+    # shared runners, so this job only runs on demand.
+    if: github.event_name == 'workflow_dispatch'
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            server/package-lock.json
+            client/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm ci --prefix server
+          npm ci --prefix client
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Build the packed binary
+        run: npm run build:bin
+
+      - name: Start the packed binary
+        run: |
+          DATA_DIR="$(mktemp -d)" PORT=8787 ./dist-bin/yttrium-linux-x64 > /tmp/yttrium-e2e.log 2>&1 &
+          echo $! > /tmp/yttrium-e2e.pid
+
+      - name: Wait for the API to answer
+        run: |
+          for _ in $(seq 1 60); do
+            curl -fsS http://127.0.0.1:8787/api/health >/dev/null 2>&1 && exit 0
+            sleep 1
+          done
+          cat /tmp/yttrium-e2e.log
+          exit 1
+
+      - name: Run the E2E suite against the binary
+        run: E2E_BASE_URL=http://127.0.0.1:8787 npm run test:e2e
+
+      - name: Stop the binary
+        if: always()
+        run: kill "$(cat /tmp/yttrium-e2e.pid)" 2>/dev/null || true

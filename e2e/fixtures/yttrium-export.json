@@ -1,0 +1,69 @@
+{
+  "app": "Ytrium",
+  "exportedAt": "2026-10-06T12:00:00.000Z",
+  "schemaVersion": 1,
+  "settings": {
+    "theme": "light",
+    "accent": "indigo",
+    "autoplay": false,
+    "audioQuality": "high"
+  },
+  "library": {
+    "playlists": [
+      {
+        "id": "pl-fixture-import",
+        "name": "Imported Fixture",
+        "description": "Playlist restored from an export fixture.",
+        "image": null,
+        "tracks": [
+          {
+            "id": "yt:dQw4w9WgXcQ",
+            "title": "Never Gonna Give You Up",
+            "artist": "Rick Astley",
+            "artistId": "artist-rickastley",
+            "album": null,
+            "albumId": null,
+            "duration": 213,
+            "thumbnail": null,
+            "source": "youtube",
+            "sourceId": "dQw4w9WgXcQ",
+            "url": null,
+            "genre": null,
+            "releaseDate": null
+          }
+        ],
+        "createdAt": 1760000000000,
+        "updatedAt": 1760000000000,
+        "liked": false
+      }
+    ],
+    "liked": {
+      "yt:dQw4w9WgXcQ": {
+        "track": {
+          "id": "yt:dQw4w9WgXcQ",
+          "title": "Never Gonna Give You Up",
+          "artist": "Rick Astley",
+          "artistId": "artist-rickastley",
+          "album": null,
+          "albumId": null,
+          "duration": 213,
+          "thumbnail": null,
+          "source": "youtube",
+          "sourceId": "dQw4w9WgXcQ",
+          "url": null,
+          "genre": null,
+          "releaseDate": null
+        },
+        "likedAt": 1760000000000
+      }
+    },
+    "savedAlbums": {},
+    "savedArtists": {},
+    "searchHistory": [],
+    "signals": {},
+    "catalog": {}
+  },
+  "history": [],
+  "player": { "volume": 0.5, "isMuted": false, "repeatMode": "off", "shuffle": false, "queue": [] },
+  "preferences": {}
+}

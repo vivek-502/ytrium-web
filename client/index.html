@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en" data-theme="dark" data-accent="purple">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="#0b0f0d" />
+    <meta
+      name="description"
+      content="Ytrium - a local-first music player. Search, queue, organise and play your library in the browser."
+    />
+    <title>Ytrium</title>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/icon.png" />
+    <style>
+      /* Pre-hydration shell: matches the app background so first paint is calm. */
+      html,
+      body {
+        margin: 0;
+        background: #0b0f0d;
+        color: #e8f3ee;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      }
+      #boot {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        gap: 10px;
+        font-size: 14px;
+        opacity: 0.75;
+      }
+      #boot .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #757de8;
+        animation: boot-pulse 1s ease-in-out infinite;
+      }
+      @keyframes boot-pulse {
+        0%,
+        100% {
+          opacity: 0.25;
+          transform: scale(0.85);
+        }
+        50% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #boot .dot {
+          animation: none;
+        }
+      }
+      .noscript {
+        max-width: 32rem;
+        margin: 12vh auto;
+        padding: 0 1.25rem;
+        text-align: center;
+        line-height: 1.6;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root">
+      <div id="boot" role="status" aria-live="polite">
+        <span class="dot" aria-hidden="true"></span>
+        Starting Ytrium…
+      </div>
+    </div>
+    <noscript>
+      <div class="noscript">
+        <h1>Ytrium needs JavaScript</h1>
+        <p>
+          Ytrium is a local-first player: your library, queue and settings live in your browser, so
+          JavaScript must be enabled to run it.
+        </p>
+      </div>
+    </noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
