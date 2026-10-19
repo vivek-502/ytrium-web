@@ -39,6 +39,13 @@ Then open <http://127.0.0.1:8787> (or the **Ytrium** entry in your app menu). Th
 account is **`admin` / `admin`** — change it from Settings → Account, then create regular
 accounts in Settings → Users.
 
+**Every device on your network can use the same library.** The service binds to
+`0.0.0.0:8787`, so any phone, tablet or computer on your Wi-Fi can sign in at
+`http://<your-computer's-LAN-IP>:8787` (the installer prints that URL when it finishes). Each
+person gets their own account, library and playlists. This is plain HTTP with no transport
+encryption, so only do it on a network you trust — install with `YTRIUM_WEB_HOST=127.0.0.1`
+(or set `HOST=127.0.0.1` when running from source) to keep it to this machine only.
+
 Manage the service:
 
 ```bash
@@ -54,12 +61,12 @@ curl -fsSL https://raw.githubusercontent.com/vivek-502/ytrium-web/master/packagi
 ```
 
 Prefer a pinned version, a different port, or to run as another user? The installer honours
-`YTRIUM_WEB_VERSION` (`latest` or `vX.Y.Z`), `YTRIUM_WEB_PORT`, `YTRIUM_WEB_USER`, `YTRIUM_WEB_DATA_DIR`,
-`YTRIUM_WEB_REPO` and `YTRIUM_WEB_BRANCH`:
+`YTRIUM_WEB_VERSION` (`latest` or `vX.Y.Z`), `YTRIUM_WEB_PORT`, `YTRIUM_WEB_HOST`,
+`YTRIUM_WEB_USER`, `YTRIUM_WEB_DATA_DIR`, `YTRIUM_WEB_REPO` and `YTRIUM_WEB_BRANCH`:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/vivek-502/ytrium-web/master/packaging/install.sh \
-  | sudo YTRIUM_WEB_VERSION=v1.0.1 YTRIUM_WEB_PORT=9000 bash
+  | sudo YTRIUM_WEB_VERSION=v1.0.3 YTRIUM_WEB_PORT=9000 bash
 ```
 
 The service runs as your user (not root) and stores its database under
@@ -128,7 +135,7 @@ Copy `.env.example` to `.env` (repository root; `server/.env` is also read). Eve
 | Variable          | Default             | Description                                            |
 | ----------------- | ------------------- | ------------------------------------------------------ |
 | `PORT`            | `8787`              | API port                                               |
-| `HOST`            | `127.0.0.1`         | Bind interface (`0.0.0.0` exposes it on your network)  |
+| `HOST`            | `0.0.0.0`           | Bind interface (`0.0.0.0` = whole LAN, `127.0.0.1` = this machine only) |
 | `NODE_ENV`        | `development`       | `production` enables stricter behaviour                |
 | `CORS_ORIGIN`     | `http://localhost:5173` | Comma-separated allowed origins for cross-origin use |
 

@@ -33,6 +33,8 @@
 #   YTRIUM_WEB_VERSION Release tag, or "latest"      (default: latest)
 #   YTRIUM_WEB_BRANCH  Branch for raw files          (default: master)
 #   YTRIUM_WEB_PORT    Port for the service          (default: 8787)
+#   YTRIUM_WEB_HOST    Address to bind               (default: 0.0.0.0 = whole LAN;
+#                                                      use 127.0.0.1 for this machine only)
 #   YTRIUM_WEB_USER    User to run the service as    (default: the sudo caller)
 set -euo pipefail
 
@@ -40,6 +42,7 @@ REPO="${YTRIUM_WEB_REPO:-vivek-502/ytrium-web}"
 BRANCH="${YTRIUM_WEB_BRANCH:-master}"
 VERSION="${YTRIUM_WEB_VERSION:-latest}"
 PORT="${YTRIUM_WEB_PORT:-8787}"
+HOST="${YTRIUM_WEB_HOST:-0.0.0.0}"
 
 BIN_PATH="/usr/local/bin/ytrium-web"
 UNIT_PATH="/etc/systemd/system/ytrium-web.service"
@@ -85,7 +88,7 @@ Options:
   -h, --help    Show this help
 
 Environment: YTRIUM_WEB_REPO, YTRIUM_WEB_VERSION (latest|vX.Y.Z), YTRIUM_WEB_BRANCH,
-             YTRIUM_WEB_PORT, YTRIUM_WEB_USER, YTRIUM_WEB_DATA_DIR
+             YTRIUM_WEB_PORT, YTRIUM_WEB_HOST, YTRIUM_WEB_USER, YTRIUM_WEB_DATA_DIR
 EOF
 }
 
@@ -220,7 +223,7 @@ Type=simple
 User=${REAL_USER}
 WorkingDirectory=${USER_HOME}
 Environment=PORT=${PORT}
-Environment=HOST=127.0.0.1
+Environment=HOST=${HOST}
 Environment=DATA_DIR=${DATA_DIR}
 # Provider overrides go here, e.g. a pipx-installed yt-dlp:
 #   Environment=YTDLP_PATH=${USER_HOME}/.local/bin/yt-dlp
@@ -281,6 +284,13 @@ info "health: $HEALTH"
 
 printf '\n✓ Ytrium Web is installed and running\n\n'
 info "Open:      http://127.0.0.1:${PORT}  (or the Ytrium Web entry in your app menu)"
+if [ "$HOST" = "0.0.0.0" ] || [ "$HOST" = "::" ]; then
+  LAN_IP="$(ip -4 route get 1.1.1.1 2>/dev/null | awk '{for (i=1;i<=NF;i++) if ($i=="src") {print $(i+1); exit}}')"
+  [ -n "${LAN_IP:-}" ] || LAN_IP="$(hostname -I 2>/dev/null | awk '{print $1}')"
+  if [ -n "${LAN_IP:-}" ]; then
+    info "LAN:       http://${LAN_IP}:${PORT}  (phones, tablets, other computers on your network)"
+  fi
+fi
 info "Sign in:   admin / admin  - change the password in Settings → Account"
 info "Service:   systemctl status|restart ytrium-web"
 info "Logs:      journalctl -u ytrium-web -f"

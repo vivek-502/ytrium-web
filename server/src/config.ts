@@ -99,7 +99,7 @@ export const config = {
   nodeEnv,
   isProd: nodeEnv === 'production',
   port: num('PORT', 8787),
-  host: str('HOST', '127.0.0.1'),
+  host: str('HOST', '0.0.0.0'),
   corsOrigins: list('CORS_ORIGIN', ['http://localhost:5173', 'http://127.0.0.1:5173']),
 
   ytdlp: {
