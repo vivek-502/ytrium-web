@@ -38,7 +38,9 @@
   display: grid;
   place-items: center;
   background: var(--accent-soft);
-  color: var(--accent);
+  /* The ring is line-work on `currentColor`, so it takes the theme's text
+     colour; the play triangle keeps the accent via `var(--accent)`. */
+  color: var(--text);
 }
 
 .signin__wordmark {

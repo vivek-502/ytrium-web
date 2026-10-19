@@ -124,10 +124,6 @@ export const TopBar: React.FC<{ scrolled: boolean }> = ({ scrolled }) => {
 
   return (
     <header className={cx("topbar", scrolled && "scrolled")}>
-      <NavLink to="/" className="topbar__brand" aria-label="Ytrium home" title="Ytrium">
-        <Logo size={26} />
-      </NavLink>
-
       <div className="topbar__nav-buttons">
         <button
           type="button"
@@ -194,15 +190,6 @@ export const TopBar: React.FC<{ scrolled: boolean }> = ({ scrolled }) => {
         onClick={() => updateSettings({ theme: theme === "dark" ? "light" : "dark" })}
       >
         <Icon name={theme === "dark" ? "sun" : "moon"} size={18} />
-      </button>
-      <button
-        type="button"
-        className="icon-btn"
-        aria-label="Keyboard shortcuts"
-        title="Keyboard shortcuts (?)"
-        onClick={() => useUiStore.getState().openDialog({ type: "shortcuts" })}
-      >
-        <Icon name="keyboard" size={18} />
       </button>
       <NavLink to="/settings" className={({ isActive }) => cx("icon-btn", isActive && "icon-btn--active")} aria-label="Settings" title="Settings">
         <Icon name="settings" size={18} />

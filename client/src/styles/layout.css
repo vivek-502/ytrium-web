@@ -44,12 +44,10 @@
   flex-shrink: 0;
 }
 
-/* The icon is its own dark tile - frame it with a soft shadow, never a
-   coloured tile behind it. drop-shadow follows the image's transparent
-   corners, so the rounding stays circular-ish instead of square. */
-.sidebar__logo img {
-  border-radius: 9px;
-  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.45));
+/* The mark is backgroundless line-work; no tile, rounding or shadow needed -
+   it inherits the sidebar's text colour for the ring. */
+.sidebar__logo svg {
+  display: block;
 }
 
 .sidebar__name {
@@ -253,28 +251,6 @@
 
 /* Brand mark parked in the header's left corner - the only logo visible
    once the sidebar collapses or hides on small screens. */
-.topbar__brand {
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-  border-radius: 8px;
-  transition: transform var(--dur-fast) var(--ease);
-}
-
-.topbar__brand:hover {
-  transform: scale(1.06);
-}
-
-.topbar__brand:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
-}
-
-.topbar__brand img {
-  border-radius: 8px;
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4));
-}
-
 .main-scroll {
   flex: 1;
   min-height: 0;
@@ -500,10 +476,5 @@
      navigation and system back gesture cover navigation here. */
   .topbar__nav-buttons {
     display: none;
-  }
-
-  .topbar__brand img {
-    width: 24px;
-    height: 24px;
   }
 }
