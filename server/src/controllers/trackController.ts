@@ -1,6 +1,12 @@
 import type { Request, Response } from 'express';
 import { asyncHandler, requireParam, sanitizeQuery, parseLimit } from '../middleware/http.js';
-import { youtubeProvider, artistIdFor, albumIdFor } from '../providers/youtube.js';
+import {
+  youtubeProvider,
+  artistIdFor,
+  albumIdFor,
+  getPlaylistTracks as fetchPlaylistTracks,
+  searchPlaylists,
+} from '../providers/youtube.js';
 import { errors } from '../utils/errors.js';
 import type { NormalizedAlbum, NormalizedArtist, NormalizedTrack } from '../providers/types.js';
 
@@ -104,4 +110,33 @@ export const getAlbum = asyncHandler(async (req: Request, res: Response) => {
   };
 
   res.json({ album, tracks, exactMatch: exact.length > 0 });
+});
+
+/**
+ * GET /api/playlists/:id/tracks
+ *
+ * Expands a public YouTube playlist into normalized tracks so a saved playlist
+ * plays through the normal stream resolver.
+ */
+export const getPlaylistTracks = asyncHandler(async (req: Request, res: Response) => {
+  const id = requireParam(req.params.id, 'playlistId');
+  const limit = parseLimit(req.query.limit, 200, 500);
+  const tracks = await fetchPlaylistTracks(id, limit).catch(() => {
+    throw errors.notFound('That playlist could not be loaded.');
+  });
+  if (!tracks.length) throw errors.notFound('That playlist is empty or unavailable.');
+  res.json({ tracks: dedupeTracks(tracks) });
+});
+
+/**
+ * GET /api/artist/playlists?name=<artist>&limit=
+ *
+ * Playlists published by (or matching) an artist, used by the artist page's
+ * "Playlists" rail.
+ */
+export const getArtistPlaylists = asyncHandler(async (req: Request, res: Response) => {
+  const name = sanitizeQuery(req.query.name, 120);
+  const limit = parseLimit(req.query.limit, 12, 24);
+  const playlists = await searchPlaylists(name, limit).catch(() => []);
+  res.json({ playlists });
 });

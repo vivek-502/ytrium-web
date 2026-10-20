@@ -66,7 +66,7 @@ Prefer a pinned version, a different port, or to run as another user? The instal
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/vivek-502/ytrium-web/master/packaging/install.sh \
-  | sudo YTRIUM_WEB_VERSION=v1.0.6 YTRIUM_WEB_PORT=9000 bash
+  | sudo YTRIUM_WEB_VERSION=v1.0.7 YTRIUM_WEB_PORT=9000 bash
 ```
 
 The service runs as your user (not root) and stores its database under
@@ -214,12 +214,16 @@ mute, shuffle, repeat (off → all → one), a real queue with drag reordering, 
 retry on stream errors, autoplay of the next track, and cross-track fades.
 
 **Library** — liked songs, playlists (create, rename, edit, delete, drag-and-drop
-reordering, add/remove tracks), saved albums, followed artists, recently played grouped
-by day, and per-track play signals (plays, skips, listen time) that feed recommendations.
+reordering, add/remove tracks, plus YouTube playlists saved from search), followed
+artists, recently played grouped by day, and per-track play signals (plays, skips,
+listen time) that feed recommendations.
 
 **Discovery** — home sections (trending, popular, new releases, recommended for you,
-quick picks), full-text search with recent-search history, and artist and album pages
-with related artists.
+quick picks), full-text search with recent-search history, and artist pages with
+related artists. Search surfaces public YouTube playlists alongside songs and artists;
+an optional *Official playlists only* setting keeps just artist/label-published ones.
+A playlist can be played directly or saved into your library, which fetches its tracks
+so it then behaves like any other playlist (offline-capable, reorderable, editable).
 
 **Lyrics** — the full player shows synced lyrics for the current track with a
 follow-along highlight that tracks playback, falling back to plain text when
@@ -300,10 +304,12 @@ cookie; the admin routes additionally require the `admin` role.
 | `GET /api/admin/users`               | List accounts, admin only (never includes hashes)    |
 | `POST /api/admin/users`              | Create a user `{username,password}`, admin only      |
 | `DELETE /api/admin/users/:id`        | Delete a user, admin only — body must carry **that user's** password |
-| `GET /api/search?q=&limit=`          | Search tracks/artists/albums                         |
+| `GET /api/search?q=&limit=`          | Search tracks/artists **and public YouTube playlists** |
 | `GET|POST /api/resolve`              | Turn metadata (or a description) into a playable track |
 | `GET /api/tracks/:id`                | Single track metadata                                |
 | `GET /api/artist?name=&limit=`       | Artist, popular tracks, albums, related artists      |
+| `GET /api/artist/playlists?name=&limit=` | Public YouTube playlists by/matching an artist   |
+| `GET /api/playlists/:id/tracks?limit=` | Expand a public YouTube playlist into playable tracks |
 | `GET /api/album?artist=&title=`      | Album metadata + tracks                              |
 | `GET /api/charts`                    | Trending / popular / new releases + featured artists/albums |
 | `GET /api/trending?limit=`           | Trending tracks only                                 |

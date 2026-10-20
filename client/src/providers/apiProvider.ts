@@ -5,6 +5,7 @@ import type {
   ArtistDetail,
   ChartsPayload,
   Lyrics,
+  RemotePlaylist,
   SearchResults,
   Track,
 } from '../types';
@@ -51,6 +52,8 @@ const recCache = new TtlCache<Track[]>(10 * 60_000, 60);
 const artistCache = new TtlCache<ArtistDetail>(5 * 60_000, 40);
 const albumCache = new TtlCache<AlbumDetail>(5 * 60_000, 40);
 const lyricsCache = new TtlCache<Lyrics | null>(24 * 60 * 60_000, 200);
+const playlistSearchCache = new TtlCache<RemotePlaylist[]>(5 * 60_000, 60);
+const playlistTracksCache = new TtlCache<Track[]>(10 * 60_000, 60);
 
 /** In-flight request de-duplication. */
 const inflight = new Map<string, Promise<unknown>>();
@@ -129,6 +132,7 @@ export class ApiProvider implements MusicProvider {
         tracks: (res.tracks ?? []).map(normalizeTrack),
         artists: res.artists ?? [],
         albums: res.albums ?? [],
+        playlists: res.playlists ?? [],
       };
       searchCache.set(key, value);
       return value;
@@ -149,16 +153,54 @@ export class ApiProvider implements MusicProvider {
     const cached = artistCache.get(key);
     if (cached) return cached;
     return dedupe(`artist::${key}`, async () => {
-      const res = await http.get<ArtistDetail & { tracks: RawTrack[] }>('/api/artist', {
-        params: { name },
-      });
+      const [res, playlists] = await Promise.all([
+        http.get<ArtistDetail & { tracks: RawTrack[] }>('/api/artist', { params: { name } }),
+        this.getArtistPlaylists(name).catch((): RemotePlaylist[] => []),
+      ]);
       const value: ArtistDetail = {
         artist: res.artist,
         tracks: (res.tracks ?? []).map(normalizeTrack),
         albums: res.albums ?? [],
         related: res.related ?? [],
+        playlists,
       };
       artistCache.set(key, value);
+      return value;
+    });
+  }
+
+  /** Public YouTube playlists by/matching an artist. */
+  async getArtistPlaylists(name: string, limit = 12): Promise<RemotePlaylist[]> {
+    const key = `${name.trim().toLowerCase()}::${limit}`;
+    const cached = playlistSearchCache.get(key);
+    if (cached) return cached;
+    return dedupe(`artistpl::${key}`, async () => {
+      const res = await http.get<{ playlists: RemotePlaylist[] }>('/api/artist/playlists', {
+        params: { name, limit },
+      });
+      const value = res.playlists ?? [];
+      playlistSearchCache.set(key, value);
+      return value;
+    });
+  }
+
+  /**
+   * Expand a public playlist into playable tracks.
+   *
+   * This is the step that turns a search result into something the player can
+   * actually queue, so failures are surfaced rather than swallowed.
+   */
+  async getPlaylistTracks(id: string, limit = 200): Promise<Track[]> {
+    const key = `${id}::${limit}`;
+    const cached = playlistTracksCache.get(key);
+    if (cached) return cached;
+    return dedupe(`pltracks::${key}`, async () => {
+      const res = await http.get<{ tracks: RawTrack[] }>(
+        `/api/playlists/${encodeURIComponent(id)}/tracks`,
+        { params: { limit }, timeoutMs: 60_000 },
+      );
+      const value = (res.tracks ?? []).map(normalizeTrack);
+      playlistTracksCache.set(key, value);
       return value;
     });
   }

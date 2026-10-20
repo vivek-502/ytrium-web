@@ -8,7 +8,7 @@ export const health = asyncHandler(async (_req: Request, res: Response) => {
   res.json({
     ok: true,
     name: 'ytrium-web-api',
-    version: '1.0.6',
+    version: '1.0.7',
     providers: ['youtube', 'charts'],
     time: new Date().toISOString(),
   });

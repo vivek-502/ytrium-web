@@ -658,6 +658,26 @@ const Settings: React.FC = () => {
         />
       </section>
 
+      {/* --------------------------------------------------------- content */}
+      <section className="settings-group" aria-labelledby="set-content">
+        <h2 className="settings-group__title" id="set-content">
+          Content
+        </h2>
+        <p className="settings-group__hint">What shows up when you search.</p>
+
+        <SettingRow
+          title="Official playlists only"
+          desc="Search playlists normally come from anyone on YouTube. Turn this on to keep only playlists published by the artist, label or an official channel."
+          control={
+            <Switch
+              label="Official playlists only"
+              checked={settings.officialPlaylistsOnly}
+              onChange={(v) => patch({ officialPlaylistsOnly: v })}
+            />
+          }
+        />
+      </section>
+
       {/* ------------------------------------------------------------ data */}
       <section className="settings-group" aria-labelledby="set-data">
         <h2 className="settings-group__title" id="set-data">

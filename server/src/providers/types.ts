@@ -46,10 +46,30 @@ export interface NormalizedAlbum {
   source: string;
 }
 
+/**
+ * A public YouTube playlist, surfaced to the UI as a "playlist" card.
+ *
+ * `id` is the native playlist id (`PL...`), which is what track fetching and
+ * playback resolve against - there is no synthetic album id here.
+ */
+export interface NormalizedPlaylist {
+  id: string;
+  title: string;
+  /** Channel/uploader that published the playlist. */
+  owner: string;
+  image: string | null;
+  trackCount?: number;
+  /** Likely published by the artist/label rather than a random user. */
+  official?: boolean;
+  source: string;
+}
+
 export interface SearchResults {
   tracks: NormalizedTrack[];
   artists: NormalizedArtist[];
   albums: NormalizedAlbum[];
+  /** Public YouTube playlists matching the query. */
+  playlists?: NormalizedPlaylist[];
 }
 
 export interface ChartsResult {
@@ -78,4 +98,6 @@ export interface MusicProvider {
   getTrack(id: string): Promise<NormalizedTrack | null>;
   resolveStream(track: NormalizedTrack): Promise<StreamSource>;
   getCharts?(): Promise<ChartsResult>;
+  /** Expand a public playlist into tracks (YouTube playlist id). */
+  getPlaylistTracks?(id: string, limit?: number): Promise<NormalizedTrack[]>;
 }

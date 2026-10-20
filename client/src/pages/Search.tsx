@@ -5,19 +5,20 @@ import { useDiscoveryStore } from "../stores/discoveryStore";
 import { useLibraryStore } from "../stores/libraryStore";
 import { usePlayerStore } from "../stores/playerStore";
 import { TrackList } from "../components/tracks/TrackList";
-import { AlbumCard, ArtistCard, MediaCard } from "../components/cards/Cards";
+import { RemotePlaylistCard, ArtistCard, MediaCard } from "../components/cards/Cards";
 import { Section } from "../components/sections/Section";
 import { Button, CardSkeleton, EmptyState, ErrorBanner, RowSkeleton, cx } from "../components/common/UI";
 import Icon from "../components/common/Icon";
 import { context } from "../components/tracks/trackMenu";
+import { useSettingsStore } from "../stores/settingsStore";
 import type { SearchResults } from "../types";
 
-type Tab = "all" | "songs" | "artists" | "albums";
+type Tab = "all" | "songs" | "artists" | "playlists";
 const TABS: Array<{ id: Tab; label: string }> = [
   { id: "all", label: "All" },
   { id: "songs", label: "Songs" },
   { id: "artists", label: "Artists" },
-  { id: "albums", label: "Albums" },
+  { id: "playlists", label: "Playlists" },
 ];
 
 const Search: React.FC = () => {
@@ -69,7 +70,11 @@ const Search: React.FC = () => {
 
   const allTracks = results?.tracks ?? [];
   const artists = useMemo(() => results?.artists ?? [], [results]);
-  const albums = useMemo(() => results?.albums ?? [], [results]);
+  const officialOnly = useSettingsStore((s) => s.settings.officialPlaylistsOnly);
+  const playlists = useMemo(() => {
+    const all = results?.playlists ?? [];
+    return officialOnly ? all.filter((p) => p.official) : all;
+  }, [results, officialOnly]);
   const playing = usePlayerStore((s) => s.isPlaying);
 
   /* ------------------------------------------------------- browse (no query) */
@@ -81,7 +86,7 @@ const Search: React.FC = () => {
             Search
           </h1>
           <p className="text-secondary" style={{ marginTop: 6, fontSize: 14.5 }}>
-            Find songs, artists and albums. Results stream in from the music provider.
+            Find songs, artists and playlists. Results stream in from the music provider.
           </p>
         </header>
 
@@ -153,11 +158,6 @@ const Search: React.FC = () => {
                 <ArtistCard key={artist.id} artist={artist} />
               ))}
             </Section>
-            <Section title="Top albums" layout="grid">
-              {charts.popularAlbums.slice(0, 12).map((album) => (
-                <AlbumCard key={album.id} album={album} />
-              ))}
-            </Section>
           </>
         )}
       </div>
@@ -167,7 +167,7 @@ const Search: React.FC = () => {
   /* ------------------------------------------------------------ search view */
   const showTracks = tab === "all" || tab === "songs";
   const showArtists = tab === "all" || tab === "artists";
-  const showAlbums = tab === "all" || tab === "albums";
+  const showPlaylists = tab === "all" || tab === "playlists";
 
   return (
     <div className="page">
@@ -177,7 +177,7 @@ const Search: React.FC = () => {
         </h1>
         {status === "ready" && (
           <p className="text-muted" style={{ fontSize: 13.5, marginTop: 4 }}>
-            {allTracks.length} songs · {artists.length} artists · {albums.length} albums
+            {allTracks.length} songs · {artists.length} artists · {playlists.length} playlists
           </p>
         )}
       </header>
@@ -223,7 +223,7 @@ const Search: React.FC = () => {
         </div>
       )}
 
-      {status === "ready" && allTracks.length === 0 && artists.length === 0 && albums.length === 0 && (
+      {status === "ready" && allTracks.length === 0 && artists.length === 0 && playlists.length === 0 && (
         <EmptyState
           icon="search"
           title={`No results for “${query}”`}
@@ -270,17 +270,25 @@ const Search: React.FC = () => {
             </Section>
           )}
 
-          {showAlbums && albums.length > 0 && (
-            <Section title="Albums" layout="grid">
-              {albums.map((album) => (
-                <AlbumCard key={album.id} album={album} />
+          {showPlaylists && playlists.length > 0 && (
+            <Section
+              title="Playlists"
+              layout="grid"
+              subtitle={
+                officialOnly
+                  ? "Official artist and label playlists only"
+                  : "Public YouTube playlists — save one to keep it in your library"
+              }
+            >
+              {playlists.map((playlist) => (
+                <RemotePlaylistCard key={playlist.id} playlist={playlist} />
               ))}
             </Section>
           )}
 
           {showTracks && allTracks.length > 0 && playing && (
             <p className="text-muted" style={{ fontSize: 13 }}>
-              Tip: double-click any row to jump straight into it.
+              Tip: click any row to jump straight into it.
             </p>
           )}
         </div>

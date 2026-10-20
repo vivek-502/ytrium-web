@@ -42,6 +42,25 @@ export interface Album {
   trackCount?: number;
 }
 
+/**
+ * A public YouTube playlist as returned by search.
+ *
+ * Distinct from the local `Playlist` (which owns its tracks): a remote playlist
+ * only carries an id and metadata until it is saved, at which point its tracks
+ * are fetched and it becomes a normal local playlist.
+ */
+export interface RemotePlaylist {
+  id: string;
+  title: string;
+  /** Channel/uploader that published it. */
+  owner: string;
+  image: string | null;
+  trackCount?: number;
+  /** Likely published by the artist/label rather than a random user. */
+  official?: boolean;
+  source: string;
+}
+
 export interface Playlist {
   id: string;
   name: string;
@@ -51,6 +70,10 @@ export interface Playlist {
   createdAt: number;
   updatedAt: number;
   liked?: boolean;
+  /** Set when this playlist was imported from a public YouTube playlist. */
+  sourcePlaylistId?: string;
+  /** Channel/uploader of the source YouTube playlist. */
+  sourceOwner?: string;
 }
 
 export interface HistoryEntry {
@@ -105,6 +128,9 @@ export interface Settings {
   accent: AccentKey;
   compactMode: boolean;
   reduceMotion: boolean;
+  /** Content */
+  /** Show only playlists that look artist/label published in search. */
+  officialPlaylistsOnly: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -116,6 +142,7 @@ export const DEFAULT_SETTINGS: Settings = {
   accent: 'purple',
   compactMode: false,
   reduceMotion: false,
+  officialPlaylistsOnly: false,
 };
 
 /* ------------------------------------------------------------- accounts */
@@ -145,6 +172,8 @@ export interface SearchResults {
   tracks: Track[];
   artists: Artist[];
   albums: Album[];
+  /** Public YouTube playlists matching the query. */
+  playlists: RemotePlaylist[];
 }
 
 export interface ChartsPayload {
@@ -161,6 +190,8 @@ export interface ArtistDetail {
   tracks: Track[];
   albums: Album[];
   related: Artist[];
+  /** Public YouTube playlists by/matching the artist. */
+  playlists?: RemotePlaylist[];
 }
 
 export interface AlbumDetail {

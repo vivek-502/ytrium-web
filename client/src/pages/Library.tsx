@@ -1,17 +1,13 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import {
-  selectLibraryAlbums,
-  selectLibraryArtists,
-  useLibraryStore,
-} from "../stores/libraryStore";
+import { selectLibraryArtists, useLibraryStore } from "../stores/libraryStore";
 import { useUiStore, ui } from "../stores/uiStore";
-import { AlbumCard, ArtistCard, PlaylistCard } from "../components/cards/Cards";
+import { ArtistCard, PlaylistCard } from "../components/cards/Cards";
 import { Button, EmptyState, cx } from "../components/common/UI";
 import Icon from "../components/common/Icon";
 import { pluralize } from "../lib/format";
 
-type Tab = "playlists" | "artists" | "albums";
+type Tab = "playlists" | "artists";
 
 const Library: React.FC = () => {
   const [params, setParams] = useSearchParams();
@@ -20,7 +16,6 @@ const Library: React.FC = () => {
 
   const playlists = useLibraryStore((s) => s.playlists);
   const artists = useLibraryStore(selectLibraryArtists);
-  const albums = useLibraryStore(selectLibraryAlbums);
   const openDialog = useUiStore((s) => s.openDialog);
 
   /* ?new=1 (sidebar "Create playlist") opens the dialog once. */
@@ -43,24 +38,18 @@ const Library: React.FC = () => {
     () => (q ? artists.filter((a) => a.name.toLowerCase().includes(q)) : artists),
     [artists, q]
   );
-  const filteredAlbums = useMemo(
-    () => (q ? albums.filter((a) => a.title.toLowerCase().includes(q)) : albums),
-    [albums, q]
-  );
 
   const counts: Record<Tab, number> = {
     playlists: playlists.length,
     artists: artists.length,
-    albums: albums.length,
   };
 
   const emptyCopy: Record<Tab, { title: string; message: string }> = {
     playlists: {
       title: "No playlists yet",
-      message: "Create a playlist to keep the songs you want together.",
+      message: "Create a playlist, or save a YouTube playlist from search.",
     },
     artists: { title: "No artists saved", message: "Like songs or save artists to see them here." },
-    albums: { title: "No albums saved", message: "Albums from your likes and playlists show up here." },
   };
 
   return (
@@ -72,8 +61,8 @@ const Library: React.FC = () => {
               Your Library
             </h1>
             <p className="text-muted" style={{ fontSize: 13.5, marginTop: 4 }}>
-              {pluralize(playlists.length, "playlist")} · {pluralize(artists.length, "artist")} ·{" "}
-              {pluralize(albums.length, "album")} stored on this device
+              {pluralize(playlists.length, "playlist")} · {pluralize(artists.length, "artist")} stored on
+              this device
             </p>
           </div>
           <Button variant="accent" icon="plus" onClick={() => openDialog({ type: "createPlaylist" })}>
@@ -108,7 +97,7 @@ const Library: React.FC = () => {
       </div>
 
       <div className="tabs" role="tablist" aria-label="Library sections">
-        {(["playlists", "artists", "albums"] as Tab[]).map((t) => (
+        {(["playlists", "artists"] as Tab[]).map((t) => (
           <button
             key={t}
             type="button"
@@ -117,7 +106,7 @@ const Library: React.FC = () => {
             className={cx("tab", tab === t && "is-active")}
             onClick={() => setTab(t)}
           >
-            {t === "playlists" ? "Playlists" : t === "artists" ? "Artists" : "Albums"}
+            {t === "playlists" ? "Playlists" : "Artists"}
             <span className="text-muted" style={{ fontWeight: 600 }}>
               {" "}
               {counts[t]}
@@ -176,17 +165,6 @@ const Library: React.FC = () => {
             </div>
           ) : (
             <EmptyState icon="mic" title={emptyCopy.artists.title} message={emptyCopy.artists.message} />
-          ))}
-
-        {tab === "albums" &&
-          (filteredAlbums.length ? (
-            <div className="card-grid">
-              {filteredAlbums.map((album) => (
-                <AlbumCard key={album.id} album={album} />
-              ))}
-            </div>
-          ) : (
-            <EmptyState icon="disc" title={emptyCopy.albums.title} message={emptyCopy.albums.message} />
           ))}
       </div>
     </div>

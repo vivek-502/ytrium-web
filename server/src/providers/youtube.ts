@@ -12,6 +12,7 @@ import type {
   MusicProvider,
   NormalizedAlbum,
   NormalizedArtist,
+  NormalizedPlaylist,
   NormalizedTrack,
   SearchResults,
   StreamSource,
@@ -22,6 +23,8 @@ const log = createLogger('youtube');
 const searchCache = new TtlCache<SearchResults>(config.cache.searchTtlMs, config.cache.maxEntries);
 const metadataCache = new TtlCache<NormalizedTrack>(config.cache.metadataTtlMs, config.cache.maxEntries);
 const streamCache = new TtlCache<StreamSource>(config.stream.ttlMs, config.cache.maxEntries);
+const playlistCache = new TtlCache<NormalizedPlaylist[]>(config.cache.searchTtlMs, config.cache.maxEntries);
+const playlistTracksCache = new TtlCache<NormalizedTrack[]>(config.cache.metadataTtlMs, config.cache.maxEntries);
 
 /** Episodes/streams that are not on-demand media. */
 const OFFICIAL_ARTIST_CHANNEL = /\s*-\s*Topic$/;
@@ -199,6 +202,164 @@ function buildSearchResults(tracks: NormalizedTrack[]): SearchResults {
   return { tracks, artists: [...artists.values()], albums: [...albums.values()] };
 }
 
+/* ---------------------------- playlists ---------------------------------- */
+
+/**
+ * `sp=EgIQAw%3D%3D` is YouTube's "filter: playlist" search parameter, so every
+ * entry the results page returns is a playlist rather than a video.
+ */
+const PLAYLIST_FILTER = 'EgIQAw%3D%3D';
+
+/** How many playlist results to attach to each search response. */
+const PLAYLIST_SEARCH_LIMIT = 12;
+
+/** Playlist ids are `PL`, `UU`, `OLAK5uy_` ... followed by 10+ url-safe chars. */
+const PLAYLIST_ID_RE = /^[A-Za-z0-9_-]{12,64}$/;
+
+export function isValidPlaylistId(id: unknown): id is string {
+  return typeof id === 'string' && PLAYLIST_ID_RE.test(id);
+}
+
+/** Channels that are almost certainly the artist/label rather than a fan. */
+const OFFICIAL_CHANNEL_PATTERNS: RegExp[] = [
+  /\s*-\s*topic$/i, // YouTube's auto-generated artist channels
+  /vevo$/i,
+  /\bofficial\b/i,
+  /\brecords?\b/i,
+  /\bmusic\b/i,
+];
+
+/**
+ * Best-effort "is this an official playlist" test.
+ *
+ * YouTube exposes no official flag, so we infer it: the channel must look like
+ * an artist/label channel (Topic, VEVO, "Official", a label) or match the
+ * artist we searched for. This is deliberately conservative - a false negative
+ * only means the playlist is hidden when "official only" is on.
+ */
+export function looksOfficial(owner: string, query: string): boolean {
+  const channel = owner.trim();
+  if (!channel) return false;
+  if (OFFICIAL_CHANNEL_PATTERNS.some((re) => re.test(channel))) return true;
+  // A channel that starts with the artist we searched for ("Daft Punk").
+  const q = query.trim().toLowerCase();
+  if (q.length >= 3) {
+    const c = channel.toLowerCase();
+    if (c.startsWith(q) || q.startsWith(c)) return true;
+  }
+  return false;
+}
+
+interface PlaylistEntry {
+  id?: string;
+  title?: string;
+  channel?: string;
+  uploader?: string;
+  playlist_count?: number | null;
+  thumbnails?: Array<{ url?: string; preference?: number }>;
+  thumbnail?: string;
+}
+
+function pickPlaylistThumb(e: PlaylistEntry): string | null {
+  if (Array.isArray(e.thumbnails) && e.thumbnails.length) {
+    const sorted = [...e.thumbnails].sort(
+      (a, b) => (b.preference ?? 0) - (a.preference ?? 0),
+    );
+    const url = sorted[0]?.url;
+    if (url) return url;
+  }
+  if (typeof e.thumbnail === 'string' && e.thumbnail) return e.thumbnail;
+  return null;
+}
+
+function fromPlaylistEntry(e: PlaylistEntry, query: string): NormalizedPlaylist | null {
+  const id = e.id;
+  if (!isValidPlaylistId(id)) return null;
+  const title = typeof e.title === 'string' && e.title.trim() ? e.title.trim() : null;
+  if (!title) return null;
+  const owner = (e.channel || e.uploader || '').trim();
+  return {
+    id,
+    title,
+    owner: owner || 'YouTube',
+    image: pickPlaylistThumb(e),
+    trackCount: typeof e.playlist_count === 'number' ? e.playlist_count : undefined,
+    official: looksOfficial(owner, query),
+    source: 'youtube',
+  };
+}
+
+export async function searchPlaylists(
+  query: string,
+  limit = 12,
+): Promise<NormalizedPlaylist[]> {
+  const key = `plsearch::${limit}::${query.toLowerCase()}`;
+  return memoize(
+    playlistCache,
+    key,
+    async () => {
+      const url =
+        'https://www.youtube.com/results?search_query=' +
+        encodeURIComponent(query) +
+        `&sp=${PLAYLIST_FILTER}`;
+      const { stdout } = await runYtDlp([
+        '--flat-playlist',
+        '--dump-single-json',
+        '--no-warnings',
+        '--skip-download',
+        '--playlist-end',
+        String(Math.max(limit * 2, 20)),
+        url,
+      ]);
+      const doc = parseJsonDoc<{ entries?: PlaylistEntry[] }>(stdout);
+      const entries = Array.isArray(doc?.entries) ? doc.entries : [];
+      const playlists = entries
+        .map((e) => fromPlaylistEntry(e, query))
+        .filter((p): p is NormalizedPlaylist => p !== null)
+        .slice(0, limit);
+      log.info('playlist search completed', { q: query.slice(0, 60), results: playlists.length });
+      return playlists;
+    },
+    config.cache.searchTtlMs,
+  );
+}
+
+/**
+ * Fetch the videos inside a public playlist.
+ *
+ * Flat extraction gives us video ids, titles, durations and thumbnails without
+ * downloading anything; the entries are normalized exactly like search results
+ * so they play through the normal stream resolver.
+ */
+export async function getPlaylistTracks(
+  playlistId: string,
+  limit = 200,
+): Promise<NormalizedTrack[]> {
+  if (!isValidPlaylistId(playlistId)) throw errors.invalidInput('invalid playlist id');
+  return memoize(
+    playlistTracksCache,
+    `${playlistId}::${limit}`,
+    async () => {
+      const { stdout } = await runYtDlp([
+        '--flat-playlist',
+        '--dump-json',
+        '--no-warnings',
+        '--skip-download',
+        '--playlist-end',
+        String(limit),
+        `https://www.youtube.com/playlist?list=${playlistId}`,
+      ]);
+      const entries = parseJsonLines<FlatEntry>(stdout);
+      const tracks = entries
+        .map(fromFlat)
+        .filter((t): t is NormalizedTrack => t !== null);
+      log.info('playlist tracks fetched', { playlistId, results: tracks.length });
+      return tracks;
+    },
+    config.cache.metadataTtlMs,
+  );
+}
+
 function watchUrl(id: string): string {
   return `https://www.youtube.com/watch?v=${id}`;
 }
@@ -250,8 +411,18 @@ export const youtubeProvider: MusicProvider = {
           .map(fromFlat)
           .filter((t): t is NormalizedTrack => t !== null)
           .slice(0, limit);
-        log.info('search completed', { q: query.slice(0, 60), results: tracks.length });
-        return buildSearchResults(tracks);
+        // Playlist search runs alongside the video search. A failure here must
+        // never break song results, so it degrades to an empty list.
+        const playlists = await searchPlaylists(query, PLAYLIST_SEARCH_LIMIT).catch(() => {
+          log.warn('playlist search failed', { q: query.slice(0, 60) });
+          return [] as NormalizedPlaylist[];
+        });
+        log.info('search completed', {
+          q: query.slice(0, 60),
+          results: tracks.length,
+          playlists: playlists.length,
+        });
+        return { ...buildSearchResults(tracks), playlists };
       },
       config.cache.searchTtlMs,
     );
@@ -357,6 +528,14 @@ export function clearProviderCaches(): void {
   searchCache.clear();
   metadataCache.clear();
   streamCache.clear();
+  playlistCache.clear();
+  playlistTracksCache.clear();
 }
 
-export const providerCaches = { searchCache, metadataCache, streamCache };
+export const providerCaches = {
+  searchCache,
+  metadataCache,
+  streamCache,
+  playlistCache,
+  playlistTracksCache,
+};

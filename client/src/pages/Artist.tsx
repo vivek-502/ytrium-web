@@ -6,7 +6,7 @@ import { usePlayerStore } from "../stores/playerStore";
 import { ui } from "../stores/uiStore";
 import { TrackList } from "../components/tracks/TrackList";
 import { Section } from "../components/sections/Section";
-import { AlbumCard, ArtistCard } from "../components/cards/Cards";
+import { ArtistCard, RemotePlaylistCard } from "../components/cards/Cards";
 import { context } from "../components/tracks/trackMenu";
 import {
   Button,
@@ -53,7 +53,7 @@ const Artist: React.FC = () => {
 
   const artist = detail?.artist;
   const tracks = useMemo(() => detail?.tracks ?? [], [detail]);
-  const albums = useMemo(() => detail?.albums ?? [], [detail]);
+  const playlists = useMemo(() => detail?.playlists ?? [], [detail]);
   const related = useMemo(() => detail?.related ?? [], [detail]);
   const following = Boolean(artist && savedArtists[artist.id]);
 
@@ -151,10 +151,10 @@ const Artist: React.FC = () => {
           {artist.description && <p className="page-header__desc">{artist.description}</p>}
           <div className="page-header__meta">
             <strong>{pluralize(tracks.length, "track")}</strong>
-            {albums.length > 0 && (
+            {playlists.length > 0 && (
               <>
                 <span>·</span>
-                <span>{pluralize(albums.length, "release")}</span>
+                <span>{pluralize(playlists.length, "playlist")}</span>
               </>
             )}
             {following && (
@@ -243,10 +243,14 @@ const Artist: React.FC = () => {
         />
       </section>
 
-      {albums.length > 0 && (
-        <Section title="Releases" subtitle={`Albums and singles by ${artist.name}`} layout="grid">
-          {albums.map((album) => (
-            <AlbumCard key={album.id} album={album} />
+      {playlists.length > 0 && (
+        <Section
+          title="Playlists"
+          subtitle={`Public YouTube playlists featuring ${artist.name}`}
+          layout="grid"
+        >
+          {playlists.map((playlist) => (
+            <RemotePlaylistCard key={playlist.id} playlist={playlist} />
           ))}
         </Section>
       )}
@@ -259,7 +263,7 @@ const Artist: React.FC = () => {
         </Section>
       )}
 
-      {tracks.length === 0 && albums.length === 0 && related.length === 0 && (
+      {tracks.length === 0 && playlists.length === 0 && related.length === 0 && (
         <EmptyState
           icon="mic"
           title={`Nothing found for ${artist.name}`}

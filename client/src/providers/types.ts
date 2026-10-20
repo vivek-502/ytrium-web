@@ -5,6 +5,7 @@ import type {
   ArtistDetail,
   ChartsPayload,
   Lyrics,
+  RemotePlaylist,
   SearchResults,
   Track,
 } from '../types';
@@ -33,6 +34,12 @@ export interface MusicProvider {
   getRecommendations(seeds: string[], limit?: number): Promise<Track[]>;
   getTrending(limit?: number): Promise<Track[]>;
   getCharts(): Promise<ChartsPayload>;
+
+  /** Public YouTube playlists by/matching an artist. */
+  getArtistPlaylists?(name: string, limit?: number): Promise<RemotePlaylist[]>;
+
+  /** Expand a public playlist into playable tracks (for saving). */
+  getPlaylistTracks(id: string, limit?: number): Promise<Track[]>;
 
   /** Lyrics (synced or plain) for a track, or null when none exist. */
   getLyrics(track: Track): Promise<Lyrics | null>;

@@ -5,6 +5,7 @@ import type {
   HistoryEntry,
   PlaybackSignals,
   Playlist,
+  RemotePlaylist,
   SearchHistoryEntry,
   Track,
 } from '../types';
@@ -42,6 +43,13 @@ interface LibraryState extends LibrarySnapshot {
 
   /* playlists */
   createPlaylist: (name: string, description?: string, coverTrack?: Track | null) => Playlist;
+  /**
+   * Save a public YouTube playlist into the library as a normal playlist,
+   * fetching its tracks. Re-saving the same source playlist refreshes it
+   * instead of creating a duplicate.
+   */
+  saveRemotePlaylist: (remote: RemotePlaylist, tracks: Track[]) => Playlist;
+  hasRemotePlaylist: (sourcePlaylistId: string) => boolean;
   updatePlaylist: (id: string, patch: Partial<Pick<Playlist, 'name' | 'description' | 'image'>>) => void;
   deletePlaylist: (id: string) => void;
   addToPlaylist: (playlistId: string, track: Track) => boolean;
@@ -201,6 +209,49 @@ export const useLibraryStore = create<LibraryState>((set, get) => ({
     };
     set({ playlists: [playlist, ...get().playlists] });
     persistLibrary({ ...get() });
+    return playlist;
+  },
+
+  hasRemotePlaylist: (sourcePlaylistId) =>
+    get().playlists.some((p) => p.sourcePlaylistId === sourcePlaylistId),
+
+  saveRemotePlaylist: (remote, tracks) => {
+    const existing = get().playlists.find((p) => p.sourcePlaylistId === remote.id);
+    if (existing) {
+      // Refresh in place, keeping the user's local edits (name, ordering is
+      // replaced by the source order which is what they asked for).
+      const playlists = get().playlists.map((p) =>
+        p.id === existing.id
+          ? {
+              ...p,
+              tracks,
+              image: p.image ?? remote.image,
+              updatedAt: Date.now(),
+            }
+          : p,
+      );
+      set({ playlists });
+      persistLibrary({ ...get() });
+      get().rememberTracks(tracks);
+      return get().playlists.find((p) => p.id === existing.id)!;
+    }
+
+    const now = Date.now();
+    const playlist: Playlist = {
+      id: uid('pl'),
+      name: remote.title.trim() || 'YouTube playlist',
+      description: remote.owner ? `YouTube · ${remote.owner}` : 'YouTube playlist',
+      image: remote.image ?? tracks[0]?.thumbnail ?? null,
+      tracks,
+      createdAt: now,
+      updatedAt: now,
+      liked: false,
+      sourcePlaylistId: remote.id,
+      sourceOwner: remote.owner || undefined,
+    };
+    set({ playlists: [playlist, ...get().playlists] });
+    persistLibrary({ ...get() });
+    get().rememberTracks(tracks);
     return playlist;
   },
 
