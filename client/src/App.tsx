@@ -22,6 +22,7 @@ const Library = lazy(() => import("./pages/Library"));
 const Liked = lazy(() => import("./pages/Liked"));
 const RecentlyPlayed = lazy(() => import("./pages/RecentlyPlayed"));
 const Playlist = lazy(() => import("./pages/Playlist"));
+const RemotePlaylist = lazy(() => import("./pages/RemotePlaylist"));
 const Album = lazy(() => import("./pages/Album"));
 const Artist = lazy(() => import("./pages/Artist"));
 const Settings = lazy(() => import("./pages/Settings"));
@@ -130,6 +131,14 @@ const AppRoot: React.FC = () => {
             element={
               <Suspense fallback={<PageFallback />}>
                 <Playlist />
+              </Suspense>
+            }
+          />
+          <Route
+            path="ytplaylist/:playlistId"
+            element={
+              <Suspense fallback={<PageFallback />}>
+                <RemotePlaylist />
               </Suspense>
             }
           />

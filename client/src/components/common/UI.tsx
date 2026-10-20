@@ -1,4 +1,5 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Icon, { type IconName } from "./Icon";
 import type { MenuItem } from "../../stores/uiStore";
 
@@ -321,22 +322,42 @@ export const DropdownMenu: React.FC<{
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
+  /**
+   * The menu is `position: fixed`, so it is measured against the viewport.
+   * Cards apply a hover transform, which makes them a containing block for
+   * fixed descendants - rendering the menu inside the card would place it
+   * relative to the card instead of the window. A portal into <body> keeps
+   * the coordinates honest.
+   */
   useLayoutEffect(() => {
-    if (!open) return;
+    if (!open) {
+      setPos(null);
+      return;
+    }
     const rect = wrapRef.current?.getBoundingClientRect();
     if (!rect) return;
-    const width = 240;
+    const node = menuRef.current;
+    const width = node?.offsetWidth || 240;
+    const height = node?.offsetHeight || 200;
     let x = align === "end" ? rect.right - width : rect.left;
-    const y = rect.bottom + 6;
-    x = clamp(x, 8, window.innerWidth - width - 8);
+    let y = rect.bottom + 6;
+    x = clamp(x, 8, Math.max(8, window.innerWidth - width - 8));
+    // Flip above the trigger when there is no room below.
+    if (y + height > window.innerHeight - 8) {
+      y = Math.max(8, rect.top - height - 6);
+    }
     setPos({ x, y });
   }, [open, align]);
 
   useEffect(() => {
     if (!open) return;
     const onDoc = (e: MouseEvent) => {
-      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false);
+      const target = e.target as Node;
+      if (wrapRef.current?.contains(target)) return;
+      if (menuRef.current?.contains(target)) return;
+      setOpen(false);
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setOpen(false);
@@ -357,20 +378,28 @@ export const DropdownMenu: React.FC<{
   return (
     <div ref={wrapRef} className={cx("menu-wrap", className)} style={{ position: "relative", display: "inline-flex" }}>
       {trigger(() => setOpen((o) => !o))}
-      {open && (
-        <div
-          className="menu"
-          role="menu"
-          aria-label={ariaLabel}
-          style={
-            pos
-              ? { left: pos.x, top: pos.y }
-              : { left: align === "end" ? "auto" : 0, right: align === "end" ? 0 : "auto", top: "100%", marginTop: 6 }
-          }
-        >
-          {renderEntries(entries, () => setOpen(false), "mi")}
-        </div>
-      )}
+      {open &&
+        createPortal(
+          <div
+            ref={menuRef}
+            className="menu"
+            role="menu"
+            aria-label={ariaLabel}
+            style={
+              pos
+                ? { left: pos.x, top: pos.y, visibility: "visible" }
+                : {
+                    left: align === "end" ? "auto" : 0,
+                    right: align === "end" ? 0 : "auto",
+                    top: 0,
+                    visibility: "hidden",
+                  }
+            }
+          >
+            {renderEntries(entries, () => setOpen(false), "mi")}
+          </div>,
+          document.body
+        )}
     </div>
   );
 };

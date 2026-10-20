@@ -1,5 +1,5 @@
 /**
- * Targeted visual check for the YouTube-playlist feature (v1.0.7).
+ * Targeted visual check for the YouTube-playlist feature (v1.0.8).
  *
  * Verifies against a running server:
  *   - search results expose a Playlists tab with real playlist cards

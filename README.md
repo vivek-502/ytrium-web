@@ -66,7 +66,7 @@ Prefer a pinned version, a different port, or to run as another user? The instal
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/vivek-502/ytrium-web/master/packaging/install.sh \
-  | sudo YTRIUM_WEB_VERSION=v1.0.7 YTRIUM_WEB_PORT=9000 bash
+  | sudo YTRIUM_WEB_VERSION=v1.0.8 YTRIUM_WEB_PORT=9000 bash
 ```
 
 The service runs as your user (not root) and stores its database under
@@ -222,8 +222,9 @@ listen time) that feed recommendations.
 quick picks), full-text search with recent-search history, and artist pages with
 related artists. Search surfaces public YouTube playlists alongside songs and artists;
 an optional *Official playlists only* setting keeps just artist/label-published ones.
-A playlist can be played directly or saved into your library, which fetches its tracks
-so it then behaves like any other playlist (offline-capable, reorderable, editable).
+Opening a playlist shows every song on its own page, from where it can be played,
+shuffled, or saved into your library — saving fetches its tracks so it then behaves
+like any other playlist (offline-capable, reorderable, editable).
 
 **Lyrics** — the full player shows synced lyrics for the current track with a
 follow-along highlight that tracks playback, falling back to plain text when

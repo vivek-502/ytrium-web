@@ -243,9 +243,17 @@ export const PlaylistCard: React.FC<{ playlist: Playlist }> = ({ playlist }) => 
  * in Library > Playlists and works like any other playlist.
  */
 export const RemotePlaylistCard: React.FC<{ playlist: RemotePlaylist }> = ({ playlist }) => {
+  const navigate = useNavigate();
   const saved = useLibraryStore((s) => s.hasRemotePlaylist(playlist.id));
   const save = useLibraryStore((s) => s.saveRemotePlaylist);
   const [busy, setBusy] = useState(false);
+
+  /** Clicking the card opens the playlist page; it fetches the songs there. */
+  const href = `/ytplaylist/${encodeURIComponent(playlist.id)}?${new URLSearchParams({
+    title: playlist.title,
+    owner: playlist.owner || "",
+    ...(playlist.image ? { image: playlist.image } : {}),
+  }).toString()}`;
 
   const loadTracks = async (): Promise<Track[] | null> => {
     try {
@@ -264,6 +272,7 @@ export const RemotePlaylistCard: React.FC<{ playlist: RemotePlaylist }> = ({ pla
     }
   };
 
+  /** The play button streams straight away, without opening the page. */
   const play = async () => {
     setBusy(true);
     const tracks = await loadTracks();
@@ -301,12 +310,17 @@ export const RemotePlaylistCard: React.FC<{ playlist: RemotePlaylist }> = ({ pla
       subtitle={subtitle}
       image={playlist.image}
       badge={playlist.official ? "Official" : undefined}
-      ariaLabel={`YouTube playlist ${playlist.title}`}
-      onOpen={() => void play()}
+      ariaLabel={`Open YouTube playlist ${playlist.title}`}
+      href={href}
       onPlay={busy ? undefined : () => void play()}
       menu={[
         {
-          label: "Play",
+          label: "Open playlist",
+          icon: <Icon name="list" size={15} />,
+          onSelect: () => navigate(href),
+        },
+        {
+          label: "Play now",
           icon: <Icon name="play" size={15} />,
           onSelect: () => void play(),
         },
